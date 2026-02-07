@@ -1,0 +1,12 @@
+services:
+  api:
+    build: .
+    container_name: loan-portal-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./loan_portal.db:/app/loan_portal.db
+      - ./uploads:/app/uploads
