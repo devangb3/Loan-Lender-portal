@@ -66,8 +66,36 @@ Set these in `backend/.env`:
 - `JWT_SECRET_KEY=<long-random-secret>`
 - `FRONTEND_URL=http://localhost:5173`
 - `UPLOAD_DIR=./uploads`
-- `RESEND_API_KEY=<optional for real emails>`
-- `EMAIL_FROM=<verified sender for resend>`
+- `EMAIL_PROVIDER=gmail|console`
+- `EMAIL_FROM=<sender email>`
+- `EMAIL_REPLY_TO=<optional>`
+- `GMAIL_USERNAME=<your gmail>`
+- `GMAIL_APP_PASSWORD=<google app password>`
+
+Quick demo (Gmail SMTP) example:
+
+```bash
+EMAIL_PROVIDER=gmail
+EMAIL_FROM=yourgmail@gmail.com
+EMAIL_REPLY_TO=yourgmail@gmail.com
+GMAIL_USERNAME=yourgmail@gmail.com
+GMAIL_APP_PASSWORD=your_google_app_password
+```
+
+#### Generating JWT Secret Key
+
+Generate a secure JWT secret key using the provided script:
+
+```bash
+cd backend
+python scripts/generate_jwt_secret.py
+```
+
+This will output a 256-bit (32-byte) hexadecimal secret key. Copy the generated key and add it to your `backend/.env` file:
+
+```bash
+JWT_SECRET_KEY=your-generated-secret-key-here
+```
 
 ## Frontend Setup
 

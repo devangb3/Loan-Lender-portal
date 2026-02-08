@@ -3,7 +3,6 @@ from __future__ import annotations
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
@@ -19,12 +18,16 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
 
-    frontend_url: str = "http://localhost:5173"
+    frontend_url: str = "http://localhost:6173"
 
     upload_dir: str = "./uploads"
 
-    resend_api_key: str | None = None
+    email_provider: str = "console"
     email_from: str = "noreply@example.com"
+    email_reply_to: str | None = None
+
+    gmail_username: str | None = None
+    gmail_app_password: str | None = None
 
     google_places_api_key: str | None = None
 

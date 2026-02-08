@@ -15,6 +15,18 @@ from app.core.logging import configure_logging
 logger = logging.getLogger(__name__)
 
 
+def _build_allowed_origins() -> list[str]:
+    configured = settings.frontend_url.rstrip("/")
+    candidates = {
+        configured,
+        "http://localhost:5173",
+        "http://localhost:6173",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:6173",
+    }
+    return sorted(origin for origin in candidates if origin)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     configure_logging(settings.debug)
@@ -34,7 +46,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url],
+    allow_origins=_build_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
