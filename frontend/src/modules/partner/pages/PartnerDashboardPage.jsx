@@ -1,0 +1,14 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Button, Grid, LinearProgress, Paper, Stack, Typography } from "@/components/ui/mui";
+import { Link } from "react-router-dom";
+import { DealSubmitForm } from "../components/DealSubmitForm";
+import { DealsTable } from "../components/DealsTable";
+import { usePartnerData } from "../hooks";
+import { currency } from "../utils";
+export function PartnerDashboardPage() {
+    const { dashboard, commissionSummary, deals, refresh } = usePartnerData();
+    return (_jsxs(Stack, { spacing: 3, children: [_jsxs(Stack, { direction: "row", justifyContent: "space-between", alignItems: "center", children: [_jsx(Typography, { variant: "h2", children: "Partner Dashboard" }), _jsxs(Stack, { direction: "row", spacing: 1, children: [_jsx(Button, { component: Link, to: "/partner/resources", variant: "outlined", children: "Resources" }), _jsx(Button, { onClick: () => void refresh(), variant: "contained", children: "Refresh Data" })] })] }), dashboard && (_jsxs(Grid, { container: true, spacing: 2, children: [_jsx(Grid, { size: { xs: 12, md: 2.4 }, children: _jsx(MetricCard, { label: "Deals", value: dashboard.deals_submitted.toString() }) }), _jsx(Grid, { size: { xs: 12, md: 2.4 }, children: _jsx(MetricCard, { label: "Closed", value: dashboard.deals_closed.toString() }) }), _jsx(Grid, { size: { xs: 12, md: 2.4 }, children: _jsx(MetricCard, { label: "Volume", value: currency(dashboard.total_loan_volume) }) }), _jsx(Grid, { size: { xs: 12, md: 2.4 }, children: _jsx(MetricCard, { label: "Pending", value: currency(dashboard.pending_commission) }) }), _jsx(Grid, { size: { xs: 12, md: 2.4 }, children: _jsx(MetricCard, { label: "YTD", value: currency(dashboard.ytd_earnings) }) })] })), commissionSummary && (_jsxs(Paper, { elevation: 0, sx: { p: 2, border: "1px solid #d6dfd0" }, children: [_jsx(Typography, { variant: "h5", children: "Commission Goal Progress" }), _jsxs(Typography, { variant: "body2", mb: 1, children: ["Goal: ", currency(commissionSummary.commission_goal), " \u2022 Paid: ", currency(commissionSummary.paid)] }), _jsx(LinearProgress, { variant: "determinate", value: Math.min(commissionSummary.progress_pct, 100) }), _jsxs(Typography, { variant: "body2", mt: 1, children: ["Pending: ", currency(commissionSummary.pending), " \u2022 Earned: ", currency(commissionSummary.earned), " \u2022 Paid:", " ", currency(commissionSummary.paid)] })] })), _jsx(DealSubmitForm, { onSubmitted: () => void refresh() }), _jsx(DealsTable, { deals: deals })] }));
+}
+function MetricCard({ label, value }) {
+    return (_jsxs(Paper, { elevation: 0, sx: { p: 2, border: "1px solid #d6dfd0" }, children: [_jsx(Typography, { variant: "body2", color: "text.secondary", children: label }), _jsx(Typography, { variant: "h4", children: value })] }));
+}
