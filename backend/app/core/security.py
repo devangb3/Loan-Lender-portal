@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -9,59 +8,20 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Use pbkdf2_sha256 to avoid bcrypt 72-byte limits and backend issues.
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
 class TokenError(Exception):
     pass
 
 
-def _prepare_password_for_bcrypt(password: str) -> str:
-    """
-    Prepare password for bcrypt hashing.
-    
-    Bcrypt has a 72-byte limit. For longer passwords, we hash them with SHA-256
-    first to get a fixed 32-byte hash, then bcrypt that hash.
-    This allows users to use passwords of any length while maintaining security.
-    """
-    password_bytes = password.encode("utf-8")
-    
-    # If password is 72 bytes or less, use it directly
-    if len(password_bytes) <= 72:
-        return password
-    
-    # For longer passwords, hash with SHA-256 first (produces 32 bytes)
-    sha256_hash = hashlib.sha256(password_bytes).hexdigest()
-    return sha256_hash
-
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verify a password against a bcrypt hash.
-    
-    Handles both direct bcrypt hashes and SHA-256 pre-hashed passwords.
-    """
-    # Try direct verification first (for passwords <= 72 bytes)
-    if pwd_context.verify(plain_password, hashed_password):
-        return True
-    
-    # If direct verification fails and password is long, try SHA-256 pre-hash
-    password_bytes = plain_password.encode("utf-8")
-    if len(password_bytes) > 72:
-        sha256_hash = hashlib.sha256(password_bytes).hexdigest()
-        return pwd_context.verify(sha256_hash, hashed_password)
-    
-    return False
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
-    """
-    Hash a password using bcrypt.
-    
-    Handles passwords longer than 72 bytes by pre-hashing with SHA-256.
-    """
-    prepared_password = _prepare_password_for_bcrypt(password)
-    return pwd_context.hash(prepared_password)
+    return pwd_context.hash(password)
 
 
 def create_token(subject: str, expires_delta: timedelta, token_type: str) -> str:

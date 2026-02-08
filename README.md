@@ -2,7 +2,7 @@
 
 A full-stack implementation of the **AI Engineering Challenge v4** using:
 
-- Backend: `FastAPI + SQLModel + Alembic + SQLite`
+- Backend: `FastAPI + SQLModel + Alembic + PostgreSQL`
 - Frontend: `React + Vite + MUI + dnd-kit`
 - Deployment target: `EC2 (backend)` + `Vercel (frontend)`
 
@@ -62,7 +62,10 @@ pytest
 
 Set these in `backend/.env`:
 
-- `DATABASE_URL=sqlite:///./loan_portal.db`
+- `DATABASE_URL=postgresql+psycopg://loan_portal:loan_portal@localhost:5432/loan_portal`
+- `POSTGRES_USER=loan_portal`
+- `POSTGRES_PASSWORD=loan_portal`
+- `POSTGRES_DB=loan_portal`
 - `JWT_SECRET_KEY=<long-random-secret>`
 - `FRONTEND_URL=http://localhost:5173`
 - `UPLOAD_DIR=./uploads`
@@ -129,9 +132,10 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-This mounts:
-- `loan_portal.db` (SQLite persistence)
-- `uploads/` (local file storage)
+This runs:
+- `postgres` service with persisted data volume (`postgres_data`)
+- `api` service connected to Postgres
+- `uploads/` mounted for local file storage
 
 ## Vercel (Frontend)
 
@@ -169,7 +173,7 @@ Add these in your deployed environment before sharing:
 
 ## Assumptions and Known Tradeoffs
 
-- SQLite is used intentionally for single-instance EC2 demo scope
+- PostgreSQL is the only supported database backend
 - File uploads are stored on EC2 local disk (no S3 in V1)
 - Update propagation is manual refresh (no websocket/polling)
 - No auth rate-limiting (explicitly deferred)

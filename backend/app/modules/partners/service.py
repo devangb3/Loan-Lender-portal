@@ -6,6 +6,7 @@ from sqlmodel import Session, select
 
 from app.common.base import CommissionStatus, DealStage
 from app.common.exceptions import NotFoundException
+from app.modules.auth.models import User
 from app.modules.commissions.models import Commission
 from app.modules.deals.models import Deal
 from app.modules.partners.models import PartnerProfile
@@ -70,6 +71,8 @@ class PartnerService:
         if not partner:
             raise NotFoundException("Partner not found")
 
+        status_changed = payload.is_active is not None or payload.is_approved is not None
+
         if payload.tier is not None:
             partner.tier = payload.tier
         if payload.commission_goal is not None:
@@ -79,6 +82,18 @@ class PartnerService:
             partner.is_approved = payload.is_approved
         if payload.is_active is not None:
             partner.is_active = payload.is_active
+
+        if status_changed:
+            user = self.session.get(User, partner.user_id)
+            if not user:
+                raise NotFoundException("Partner user not found")
+
+            if payload.is_active is not None:
+                user.is_active = payload.is_active
+
+            if partner.is_active and partner.is_approved:
+                user.is_active = True
+                user.is_email_verified = True
 
         self.repo.save(partner)
         self.session.commit()

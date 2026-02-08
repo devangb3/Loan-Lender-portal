@@ -4,9 +4,7 @@ import re
 
 from app.common.exceptions import BadRequestException
 
-
 PASSWORD_POLICY = re.compile(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$")
-
 
 def validate_password(password: str) -> None:
     if not PASSWORD_POLICY.match(password):

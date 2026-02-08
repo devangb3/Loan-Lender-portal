@@ -148,7 +148,10 @@ class DealService:
         return self._to_detail(deal)
 
     def _to_detail(self, deal: Deal) -> DealDetailResponse:
-        days = max((datetime.now(UTC) - deal.stage_changed_at).days, 0)
+        stage_changed_at = deal.stage_changed_at
+        if stage_changed_at.tzinfo is None:
+            stage_changed_at = stage_changed_at.replace(tzinfo=UTC)
+        days = max((datetime.now(UTC) - stage_changed_at).days, 0)
         return DealDetailResponse(
             id=str(deal.id),
             property_type=deal.property_type,

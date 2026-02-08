@@ -1,17 +1,28 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+ENV_FILE = BASE_DIR / ".env"
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    model_config = SettingsConfigDict(
+        env_file=ENV_FILE,
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     app_name: str = "Loan Referral Platform API"
     env: str = "development"
     debug: bool = True
     api_prefix: str = "/api/v1"
 
-    database_url: str = "sqlite:///./loan_portal.db"
+    database_url: str = "postgresql+psycopg://loan_portal:loan_portal@localhost:5432/loan_portal"
 
     jwt_secret_key: str = Field(default="please-change-me", min_length=12)
     jwt_algorithm: str = "HS256"

@@ -23,10 +23,6 @@ htmlcov/
 backend/.env
 backend/.env.local
 backend/.env.*.local
-backend/loan_portal.db
-backend/*.db
-backend/*.sqlite
-backend/*.sqlite3
 backend/uploads/
 
 # Frontend runtime
