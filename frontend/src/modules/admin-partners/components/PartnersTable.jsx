@@ -1,38 +1,191 @@
-import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import PropTypes from "prop-types";
-import { Button, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/mui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+import {
+  Alert,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+} from "@/components/ui/mui";
+
 import { deactivatePartner, updatePartner } from "../api";
 import { pct } from "../utils";
+
 export function PartnersTable({ partners, onChanged }) {
-    const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
-    const [partnerToDeactivate, setPartnerToDeactivate] = useState(null);
-    const handleDeactivateClick = (partner) => {
-        setPartnerToDeactivate(partner);
-        setDeactivateDialogOpen(true);
-    };
-    const handleDeactivateConfirm = async () => {
-        if (partnerToDeactivate) {
-            try {
-                await deactivatePartner(partnerToDeactivate.id);
-                setDeactivateDialogOpen(false);
-                setPartnerToDeactivate(null);
-                onChanged();
-            }
-            catch (error) {
-                console.error("Failed to deactivate partner:", error);
-            }
-        }
-    };
-    const handleDeactivateCancel = () => {
-        setDeactivateDialogOpen(false);
-        setPartnerToDeactivate(null);
-    };
-    return (_jsxs(_Fragment, { children: [_jsx(Paper, { elevation: 0, sx: { border: "1px solid #d6dfd0", overflow: "hidden" }, children: _jsxs(Table, { children: [_jsx(TableHead, { children: _jsxs(TableRow, { children: [_jsx(TableCell, { children: "Company" }), _jsx(TableCell, { children: "Tier" }), _jsx(TableCell, { children: "Deals" }), _jsx(TableCell, { children: "Conversion" }), _jsx(TableCell, { children: "Volume" }), _jsx(TableCell, { children: "Status" }), _jsx(TableCell, { children: "Actions" })] }) }), _jsx(TableBody, { children: partners.map((partner) => (_jsxs(TableRow, { children: [_jsx(TableCell, { children: partner.company }), _jsx(TableCell, { children: _jsx(Chip, { label: partner.tier, size: "small" }) }), _jsx(TableCell, { children: partner.deal_count }), _jsx(TableCell, { children: pct(partner.conversion_rate) }), _jsx(TableCell, { children: partner.total_volume.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }) }), _jsx(TableCell, { children: _jsx(Chip, { label: partner.is_active ? "Active" : "Inactive", color: partner.is_active ? "success" : "default", size: "small" }) }), _jsx(TableCell, { children: partner.is_active ? (_jsx(Button, { size: "small", color: "error", variant: "outlined", onClick: () => handleDeactivateClick(partner), children: "Deactivate" })) : (_jsx(Button, { size: "small", variant: "contained", onClick: () => {
-                                                void updatePartner(partner.id, { is_active: true }).then(onChanged);
-                                            }, children: "Activate" })) })] }, partner.id))) })] }) }), _jsxs(Dialog, { open: deactivateDialogOpen, onClose: handleDeactivateCancel, children: [_jsx(DialogTitle, { children: "Deactivate Partner" }), _jsx(DialogContent, { children: _jsxs(DialogContentText, { children: ["Are you sure you want to deactivate \"", partnerToDeactivate?.company, "\"? This will disable their account and prevent them from logging in. This action can be reversed by activating them again."] }) }), _jsxs(DialogActions, { children: [_jsx(Button, { onClick: handleDeactivateCancel, children: "Cancel" }), _jsx(Button, { onClick: () => void handleDeactivateConfirm(), color: "error", variant: "contained", children: "Deactivate" })] })] })] }));
+  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
+  const [partnerToDeactivate, setPartnerToDeactivate] = useState(null);
+
+  const [goalByPartnerId, setGoalByPartnerId] = useState({});
+  const [goalSavingPartnerId, setGoalSavingPartnerId] = useState(null);
+  const [goalError, setGoalError] = useState(null);
+
+  useEffect(() => {
+    const nextGoals = {};
+    for (const partner of partners) {
+      nextGoals[partner.id] = String(partner.commission_goal ?? 0);
+    }
+    setGoalByPartnerId(nextGoals);
+  }, [partners]);
+
+  const handleDeactivateClick = (partner) => {
+    setPartnerToDeactivate(partner);
+    setDeactivateDialogOpen(true);
+  };
+
+  const handleDeactivateConfirm = async () => {
+    if (!partnerToDeactivate) return;
+
+    try {
+      await deactivatePartner(partnerToDeactivate.id);
+      setDeactivateDialogOpen(false);
+      setPartnerToDeactivate(null);
+      onChanged();
+    } catch (error) {
+      console.error("Failed to deactivate partner:", error);
+    }
+  };
+
+  const handleDeactivateCancel = () => {
+    setDeactivateDialogOpen(false);
+    setPartnerToDeactivate(null);
+  };
+
+  const handleGoalSave = async (partnerId) => {
+    const raw = goalByPartnerId[partnerId] ?? "";
+    const parsed = Number(raw);
+
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      setGoalError("Commission goal must be a number greater than or equal to 0.");
+      return;
+    }
+
+    setGoalSavingPartnerId(partnerId);
+    setGoalError(null);
+
+    try {
+      await updatePartner(partnerId, { commission_goal: parsed });
+      await onChanged();
+    } catch (error) {
+      console.error("Failed to update commission goal:", error);
+      setGoalError("Failed to update commission goal. Please try again.");
+    } finally {
+      setGoalSavingPartnerId(null);
+    }
+  };
+
+  return (
+    <>
+      {goalError ? <Alert severity="error">{goalError}</Alert> : null}
+
+      <Paper elevation={0} sx={{ border: "1px solid #d6dfd0", overflow: "hidden" }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Company</TableCell>
+              <TableCell>Tier</TableCell>
+              <TableCell>Deals</TableCell>
+              <TableCell>Conversion</TableCell>
+              <TableCell>Volume</TableCell>
+              <TableCell>Commission Goal</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+
+          <TableBody>
+            {partners.map((partner) => {
+              const savingGoal = goalSavingPartnerId === partner.id;
+
+              return (
+                <TableRow key={partner.id}>
+                  <TableCell>{partner.company}</TableCell>
+                  <TableCell>
+                    <Chip label={partner.tier} size="small" />
+                  </TableCell>
+                  <TableCell>{partner.deal_count}</TableCell>
+                  <TableCell>{pct(partner.conversion_rate)}</TableCell>
+                  <TableCell>
+                    {partner.total_volume.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                      maximumFractionDigits: 0,
+                    })}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <TextField
+                        type="number"
+                        size="small"
+                        value={goalByPartnerId[partner.id] ?? ""}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setGoalByPartnerId((prev) => ({ ...prev, [partner.id]: value }));
+                        }}
+                        disabled={savingGoal}
+                      />
+                      <Button size="small" variant="outlined" disabled={savingGoal} onClick={() => void handleGoalSave(partner.id)}>
+                        {savingGoal ? "Saving..." : "Save"}
+                      </Button>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Chip label={partner.is_active ? "Active" : "Inactive"} color={partner.is_active ? "success" : "default"} size="small" />
+                  </TableCell>
+                  <TableCell>
+                    {partner.is_active ? (
+                      <Button size="small" color="error" variant="outlined" onClick={() => handleDeactivateClick(partner)}>
+                        Deactivate
+                      </Button>
+                    ) : (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={() => {
+                          void updatePartner(partner.id, { is_active: true }).then(onChanged);
+                        }}
+                      >
+                        Activate
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </Paper>
+
+      <Dialog open={deactivateDialogOpen} onClose={handleDeactivateCancel}>
+        <DialogTitle>Deactivate Partner</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to deactivate "{partnerToDeactivate?.company}"? This will disable their account and prevent them from
+            logging in. This action can be reversed by activating them again.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeactivateCancel}>Cancel</Button>
+          <Button onClick={() => void handleDeactivateConfirm()} color="error" variant="contained">
+            Deactivate
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
 }
+
 PartnersTable.propTypes = {
-    partners: PropTypes.arrayOf(PropTypes.object).isRequired,
-    onChanged: PropTypes.func.isRequired,
+  partners: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onChanged: PropTypes.func.isRequired,
 };
