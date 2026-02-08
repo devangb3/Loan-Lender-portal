@@ -30,8 +30,6 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-loan_portal}:${POSTGRES_PASSWORD:-loan_portal}@postgres:5432/${POSTGRES_DB:-loan_portal}
-    volumes:
-      - ./uploads:/app/uploads
 
 volumes:
   postgres_data:

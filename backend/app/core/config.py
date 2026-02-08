@@ -31,8 +31,6 @@ class Settings(BaseSettings):
 
     frontend_url: str = "http://localhost:6173"
 
-    upload_dir: str = "./uploads"
-
     email_provider: str = "console"
     email_from: str = "noreply@example.com"
     email_reply_to: str | None = None

@@ -3,11 +3,10 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from fastapi import UploadFile
 from sqlmodel import Session, select
 
 from app.common.base import DealStage, UserRole
-from app.common.exceptions import ForbiddenException, NotFoundException
+from app.common.exceptions import BadRequestException, ForbiddenException, NotFoundException
 from app.core.security import get_password_hash
 from app.modules.auth.models import AuthToken, User
 from app.modules.borrowers.models import BorrowerProfile
@@ -17,9 +16,6 @@ from app.modules.deals.models import Deal
 from app.modules.deals.repository import DealRepository
 from app.modules.deals.schemas import DealDetailResponse, DealListItem, DealSubmitRequest
 from app.modules.deals.validators import validate_loan_amount
-from app.modules.files.models import FileAsset
-from app.modules.files.service import FileService
-from pathlib import Path
 from app.modules.notifications.service import NotificationService
 from app.modules.partners.models import PartnerProfile
 from app.modules.pipeline.models import DealStageEvent
@@ -33,49 +29,66 @@ class DealService:
         self.borrowers = BorrowerRepository(session)
         self.notifications = NotificationService(session)
 
-    async def submit_deal(
+    def submit_deal(
         self,
         partner: PartnerProfile,
         payload: DealSubmitRequest,
-        upload: UploadFile | None,
     ) -> Deal:
         validate_loan_amount(payload.loan_amount)
+        borrower_email = payload.borrower_email.strip().lower()
 
-        borrower = self.borrowers.get_by_email(payload.borrower_email)
-        if borrower:
-            borrower_profile = borrower
-            borrower_user = self.session.get(User, borrower_profile.user_id)
-        else:
-            borrower_user = User(
-                email=payload.borrower_email.lower(),
-                hashed_password=get_password_hash(str(uuid4())),
-                role=UserRole.BORROWER,
-                full_name=payload.borrower_name,
-                is_active=False,
-                is_email_verified=False,
-            )
-            self.session.add(borrower_user)
-            self.session.flush()
+        borrower_profile = self.borrowers.get_by_email(borrower_email)
+        if not borrower_profile:
+            borrower_user = self.session.exec(select(User).where(User.email == borrower_email)).first()
+            if borrower_user:
+                if borrower_user.role != UserRole.BORROWER:
+                    raise BadRequestException("Borrower email already belongs to another account")
+                borrower_profile = self.borrowers.get_by_user_id(borrower_user.id)
+                if not borrower_profile:
+                    borrower_profile = BorrowerProfile(
+                        user_id=borrower_user.id,
+                        email=borrower_email,
+                        phone_number=payload.borrower_phone,
+                    )
+                    self.borrowers.save(borrower_profile)
+            else:
+                borrower_user = User(
+                    email=borrower_email,
+                    hashed_password=get_password_hash(str(uuid4())),
+                    role=UserRole.BORROWER,
+                    full_name=payload.borrower_name,
+                    is_active=False,
+                    is_email_verified=False,
+                )
+                self.session.add(borrower_user)
+                self.session.flush()
 
-            borrower_profile = BorrowerProfile(
-                user_id=borrower_user.id,
-                email=payload.borrower_email.lower(),
-                phone_number=payload.borrower_phone,
-            )
+                borrower_profile = BorrowerProfile(
+                    user_id=borrower_user.id,
+                    email=borrower_email,
+                    phone_number=payload.borrower_phone,
+                )
+                self.borrowers.save(borrower_profile)
+
+                invite_token = AuthToken(
+                    user_id=borrower_user.id,
+                    token=str(uuid4()),
+                    token_type="borrower_invite",
+                    expires_at=AuthToken.default_expiry(72),
+                )
+                self.session.add(invite_token)
+                self.notifications.send_email(
+                    to_email=borrower_user.email,
+                    subject="You were invited to review your loan status",
+                    html=f"Use this invite token to activate your borrower account: {invite_token.token}",
+                )
+
+        if borrower_profile is None:
+            raise BadRequestException("Unable to resolve borrower profile")
+
+        if borrower_profile.phone_number != payload.borrower_phone:
+            borrower_profile.phone_number = payload.borrower_phone
             self.borrowers.save(borrower_profile)
-
-            invite_token = AuthToken(
-                user_id=borrower_user.id,
-                token=str(uuid4()),
-                token_type="borrower_invite",
-                expires_at=AuthToken.default_expiry(72),
-            )
-            self.session.add(invite_token)
-            self.notifications.send_email(
-                to_email=borrower_user.email,
-                subject="You were invited to review your loan status",
-                html=f"Use this invite token to activate your borrower account: {invite_token.token}",
-            )
 
         deal = Deal(
             partner_id=partner.id,
@@ -85,7 +98,7 @@ class DealService:
             loan_amount=payload.loan_amount,
             transaction_type=payload.transaction_type,
             borrower_name=payload.borrower_name,
-            borrower_email=payload.borrower_email.lower(),
+            borrower_email=borrower_email,
             borrower_phone=payload.borrower_phone,
             stage=DealStage.SUBMITTED,
             stage_changed_at=datetime.now(UTC),
@@ -99,9 +112,6 @@ class DealService:
             to_stage=DealStage.SUBMITTED,
             reason="Deal submitted",
         )
-
-        if upload:
-            await FileService(self.session).save_deal_file(deal.id, partner.user_id, upload)
 
         self.session.commit()
         self.session.refresh(deal)
@@ -196,18 +206,6 @@ class DealService:
         commission = self.session.exec(select(Commission).where(Commission.deal_id == deal_id)).first()
         if commission:
             self.session.delete(commission)
-
-        # Delete file assets and their physical files
-        file_assets = list(self.session.exec(select(FileAsset).where(FileAsset.deal_id == deal_id)))
-        for asset in file_assets:
-            # Delete physical file if it exists
-            file_path = Path(asset.storage_path)
-            if file_path.exists():
-                try:
-                    file_path.unlink()
-                except OSError:
-                    pass  # Ignore errors if file doesn't exist or can't be deleted
-            self.session.delete(asset)
 
     def delete_deal(self, deal_id: UUID) -> None:
         deal = self.repo.get_by_id(deal_id)
