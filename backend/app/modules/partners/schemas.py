@@ -30,6 +30,7 @@ class PartnerAdminMetricsResponse(BaseModel):
     user_id: str
     company: str
     tier: PartnerTier
+    commission_goal: float
     is_approved: bool
     is_active: bool
     deal_count: int

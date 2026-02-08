@@ -12,7 +12,6 @@ from app.modules.auth import models as auth_models  # noqa: F401
 from app.modules.borrowers import models as borrower_models  # noqa: F401
 from app.modules.commissions import models as commission_models  # noqa: F401
 from app.modules.deals import models as deal_models  # noqa: F401
-from app.modules.files import models as file_models  # noqa: F401
 from app.modules.lenders import models as lender_models  # noqa: F401
 from app.modules.notifications import models as notification_models  # noqa: F401
 from app.modules.partners import models as partner_models  # noqa: F401

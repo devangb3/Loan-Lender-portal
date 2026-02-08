@@ -68,7 +68,6 @@ Set these in `backend/.env`:
 - `POSTGRES_DB=loan_portal`
 - `JWT_SECRET_KEY=<long-random-secret>`
 - `FRONTEND_URL=http://localhost:5173`
-- `UPLOAD_DIR=./uploads`
 - `EMAIL_PROVIDER=gmail|console`
 - `EMAIL_FROM=<sender email>`
 - `EMAIL_REPLY_TO=<optional>`
@@ -135,7 +134,6 @@ docker compose up -d --build
 This runs:
 - `postgres` service with persisted data volume (`postgres_data`)
 - `api` service connected to Postgres
-- `uploads/` mounted for local file storage
 
 ## Vercel (Frontend)
 
@@ -174,7 +172,6 @@ Add these in your deployed environment before sharing:
 ## Assumptions and Known Tradeoffs
 
 - PostgreSQL is the only supported database backend
-- File uploads are stored on EC2 local disk (no S3 in V1)
 - Update propagation is manual refresh (no websocket/polling)
 - No auth rate-limiting (explicitly deferred)
 - API docs exposed only in development mode (`/docs`)

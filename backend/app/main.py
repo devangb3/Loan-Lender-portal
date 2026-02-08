@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import logging
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,7 +29,6 @@ def _build_allowed_origins() -> list[str]:
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     configure_logging(settings.debug)
-    Path(settings.upload_dir).mkdir(parents=True, exist_ok=True)
     init_db()
     logger.info("Application startup complete")
     yield

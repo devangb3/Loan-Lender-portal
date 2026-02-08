@@ -56,6 +56,7 @@ class PartnerService:
                     user_id=str(partner.user_id),
                     company=partner.company,
                     tier=partner.tier,
+                    commission_goal=partner.commission_goal,
                     is_approved=partner.is_approved,
                     is_active=partner.is_active,
                     deal_count=deal_count,

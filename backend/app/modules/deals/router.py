@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from fastapi import APIRouter, Depends, Form, status
 from sqlmodel import Session
 
 from app.common.base import PropertyType, TransactionType, UserRole
@@ -25,7 +25,6 @@ async def partner_submit_deal(
     borrower_name: str = Form(...),
     borrower_email: str = Form(...),
     borrower_phone: str = Form(...),
-    upload: UploadFile | None = File(default=None),
     partner=Depends(get_current_partner_profile),
     session: Session = Depends(get_session),
 ) -> DealDetailResponse:
@@ -38,7 +37,7 @@ async def partner_submit_deal(
         borrower_email=borrower_email,
         borrower_phone=borrower_phone,
     )
-    deal = await DealService(session).submit_deal(partner, payload, upload)
+    deal = DealService(session).submit_deal(partner, payload)
     return DealService(session).get_partner_deal(deal.id, partner)
 
 

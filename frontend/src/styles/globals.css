@@ -1,0 +1,64 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Serif+4:opsz,wght@8..60,300..900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 42 67% 97%;
+  --foreground: 154 26% 15%;
+  --card: 48 70% 99%;
+  --card-foreground: 154 26% 15%;
+  --popover: 48 70% 99%;
+  --popover-foreground: 154 26% 15%;
+  --primary: 156 41% 26%;
+  --primary-foreground: 45 76% 96%;
+  --secondary: 18 49% 44%;
+  --secondary-foreground: 45 76% 96%;
+  --muted: 48 36% 92%;
+  --muted-foreground: 156 15% 32%;
+  --accent: 25 77% 56%;
+  --accent-foreground: 24 69% 14%;
+  --destructive: 6 73% 44%;
+  --destructive-foreground: 45 76% 96%;
+  --border: 32 32% 78%;
+  --input: 32 32% 78%;
+  --ring: 25 77% 56%;
+  --radius: 0.9rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    @apply min-h-screen;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    background-image:
+      radial-gradient(circle at 14% 12%, rgba(218, 165, 74, 0.22), transparent 33%),
+      radial-gradient(circle at 88% 18%, rgba(39, 91, 75, 0.2), transparent 32%),
+      linear-gradient(122deg, rgba(255, 250, 242, 0.94), rgba(244, 247, 241, 0.94));
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display uppercase tracking-poster;
+  }
+}
+
+@layer components {
+  .editorial-shell {
+    @apply border border-border/80 bg-card/95 shadow-editorial backdrop-blur;
+  }
+}
