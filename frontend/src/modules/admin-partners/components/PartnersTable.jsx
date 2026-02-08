@@ -51,8 +51,8 @@ export function PartnersTable({ partners, onChanged }) {
       setDeactivateDialogOpen(false);
       setPartnerToDeactivate(null);
       onChanged();
-    } catch (error) {
-      console.error("Failed to deactivate partner:", error);
+    } catch {
+      // Error feedback is handled globally by the API client interceptor.
     }
   };
 
@@ -76,11 +76,19 @@ export function PartnersTable({ partners, onChanged }) {
     try {
       await updatePartner(partnerId, { commission_goal: parsed });
       await onChanged();
-    } catch (error) {
-      console.error("Failed to update commission goal:", error);
+    } catch {
       setGoalError("Failed to update commission goal. Please try again.");
     } finally {
       setGoalSavingPartnerId(null);
+    }
+  };
+
+  const handleActivate = async (partnerId) => {
+    try {
+      await updatePartner(partnerId, { is_active: true });
+      await onChanged();
+    } catch {
+      // Error feedback is handled globally by the API client interceptor.
     }
   };
 
@@ -152,7 +160,7 @@ export function PartnersTable({ partners, onChanged }) {
                         size="small"
                         variant="contained"
                         onClick={() => {
-                          void updatePartner(partner.id, { is_active: true }).then(onChanged);
+                          void handleActivate(partner.id);
                         }}
                       >
                         Activate

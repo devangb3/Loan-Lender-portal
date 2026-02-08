@@ -3,6 +3,7 @@ import { RouterProvider } from "react-router-dom";
 
 import { AuthProvider } from "./app/AuthContext";
 import { router } from "./app/routes";
+import { FeedbackProvider } from "./shared/feedback/FeedbackProvider";
 import "./styles/globals.css";
 
 const rootElement = document.getElementById("root");
@@ -11,7 +12,9 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-  <AuthProvider>
-    <RouterProvider router={router} />
-  </AuthProvider>,
+  <FeedbackProvider>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  </FeedbackProvider>,
 );

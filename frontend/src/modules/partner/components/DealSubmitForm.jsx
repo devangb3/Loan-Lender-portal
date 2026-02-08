@@ -22,6 +22,8 @@ export function DealSubmitForm({ onSubmitted }) {
       event.currentTarget.reset();
       setAddress("");
       onSubmitted();
+    } catch {
+      // Error feedback is handled globally by the API client interceptor.
     } finally {
       setSubmitting(false);
     }

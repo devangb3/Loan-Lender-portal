@@ -12,7 +12,12 @@ export function AdminPipelinePage() {
     const [substages, setSubstages] = useState([]);
     const [error, setError] = useState(null);
     const refreshSubstages = async () => {
-        setSubstages(await listSubstages());
+        try {
+            setSubstages(await listSubstages());
+        }
+        catch {
+            // Error feedback is handled globally by the API client interceptor.
+        }
     };
     useEffect(() => {
         void refreshSubstages();

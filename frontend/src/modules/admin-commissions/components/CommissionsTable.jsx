@@ -12,6 +12,9 @@ export function CommissionsTable({ commissions, onChanged }) {
             const updated = await updateCommissionStatus(commission.id, status);
             onChanged(commissions.map((item) => (item.id === updated.id ? updated : item)));
         }
+        catch {
+            // Error feedback is handled globally by the API client interceptor.
+        }
         finally {
             setUpdatingId(null);
         }

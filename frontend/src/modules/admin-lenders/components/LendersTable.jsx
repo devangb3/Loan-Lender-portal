@@ -20,8 +20,8 @@ export function LendersTable({ lenders, onDeleted }) {
                 setLenderToDelete(null);
                 onDeleted();
             }
-            catch (error) {
-                console.error("Failed to delete lender:", error);
+            catch {
+                // Error feedback is handled globally by the API client interceptor.
             }
         }
     };
