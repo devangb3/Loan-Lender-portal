@@ -49,7 +49,7 @@ export function AdminPipelinePage(): JSX.Element {
       <DndContext onDragEnd={(event) => void handleDragEnd(event)}>
         <Stack direction="row" spacing={2} sx={{ overflowX: "auto", pb: 1 }}>
           {STAGE_ORDER.map((stage) => (
-            <KanbanColumn key={stage} stage={stage} title={stageTitle(stage)} deals={board[stage] ?? []} />
+            <KanbanColumn key={stage} stage={stage} title={stageTitle(stage)} deals={board[stage] ?? []} onDealDeleted={() => void refresh()} />
           ))}
         </Stack>
       </DndContext>

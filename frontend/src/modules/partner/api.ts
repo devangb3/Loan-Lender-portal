@@ -12,9 +12,7 @@ export async function fetchPartnerDeals(): Promise<DealItem[]> {
 }
 
 export async function submitDeal(formData: FormData): Promise<DealDetail> {
-  const response = await apiClient.post<DealDetail>("/partner/deals", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const response = await apiClient.post<DealDetail>("/partner/deals", formData);
   return response.data;
 }
 

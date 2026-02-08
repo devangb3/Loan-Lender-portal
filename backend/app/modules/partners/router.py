@@ -55,3 +55,23 @@ def admin_update_partner(
         is_approved=partner.is_approved,
         is_active=partner.is_active,
     )
+
+
+@router.post("/admin/partners/{partner_id}/deactivate", response_model=PartnerProfileResponse)
+def admin_deactivate_partner(
+    partner_id: UUID,
+    _: object = Depends(require_roles(UserRole.ADMIN)),
+    session: Session = Depends(get_session),
+) -> PartnerProfileResponse:
+    partner = PartnerService(session).deactivate_partner(partner_id)
+    return PartnerProfileResponse(
+        id=str(partner.id),
+        user_id=str(partner.user_id),
+        company=partner.company,
+        branch=partner.branch,
+        phone_number=partner.phone_number,
+        tier=partner.tier,
+        commission_goal=partner.commission_goal,
+        is_approved=partner.is_approved,
+        is_active=partner.is_active,
+    )

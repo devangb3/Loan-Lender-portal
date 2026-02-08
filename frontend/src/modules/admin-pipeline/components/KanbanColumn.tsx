@@ -3,7 +3,7 @@ import { useDroppable } from "@dnd-kit/core";
 import type { KanbanDeal } from "../types";
 import { DraggableDealCard } from "./DraggableDealCard";
 
-export function KanbanColumn({ stage, title, deals }: { stage: string; title: string; deals: KanbanDeal[] }): JSX.Element {
+export function KanbanColumn({ stage, title, deals, onDealDeleted }: { stage: string; title: string; deals: KanbanDeal[]; onDealDeleted: () => void }): JSX.Element {
   const { setNodeRef } = useDroppable({ id: stage });
 
   return (
@@ -13,7 +13,7 @@ export function KanbanColumn({ stage, title, deals }: { stage: string; title: st
       </Typography>
       <Stack spacing={1}>
         {deals.map((deal) => (
-          <DraggableDealCard key={deal.id} deal={deal} />
+          <DraggableDealCard key={deal.id} deal={deal} onDeleted={onDealDeleted} />
         ))}
       </Stack>
     </Paper>

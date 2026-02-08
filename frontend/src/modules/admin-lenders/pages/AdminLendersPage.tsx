@@ -18,7 +18,7 @@ export function AdminLendersPage(): JSX.Element {
       <TextField label="Search lenders" value={query} onChange={(event) => setQuery(event.target.value)} />
       <LenderImportForm onImported={() => void refresh()} />
       <LenderAssignForm deals={deals} lenders={lenders} onAssigned={() => void refresh()} />
-      <LendersTable lenders={lenders} />
+      <LendersTable lenders={lenders} onDeleted={() => void refresh()} />
     </Stack>
   );
 }

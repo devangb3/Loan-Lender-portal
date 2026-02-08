@@ -31,3 +31,9 @@ class DealRepository:
         self.session.add(deal)
         self.session.flush()
         return deal
+
+    def delete(self, deal_id: UUID) -> None:
+        deal = self.get_by_id(deal_id)
+        if deal:
+            self.session.delete(deal)
+            self.session.flush()

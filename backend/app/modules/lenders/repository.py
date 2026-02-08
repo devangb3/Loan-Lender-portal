@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from uuid import UUID
+
 from sqlmodel import Session, select
 
 from app.modules.lenders.models import Lender
@@ -41,3 +43,12 @@ class LenderRepository:
 
         stmt = stmt.offset(offset).limit(limit).order_by(Lender.lender_name)
         return list(self.session.exec(stmt))
+
+    def get_by_id(self, lender_id: UUID) -> Lender | None:
+        return self.session.get(Lender, lender_id)
+
+    def delete(self, lender_id: UUID) -> None:
+        lender = self.get_by_id(lender_id)
+        if lender:
+            self.session.delete(lender)
+            self.session.flush()

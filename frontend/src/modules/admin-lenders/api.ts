@@ -9,9 +9,7 @@ export async function listLenders(query = ""): Promise<Lender[]> {
 export async function importLenders(file: File): Promise<LenderImportResult> {
   const form = new FormData();
   form.append("file", file);
-  const response = await apiClient.post<LenderImportResult>("/admin/lenders/import", form, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const response = await apiClient.post<LenderImportResult>("/admin/lenders/import", form);
   return response.data;
 }
 
@@ -22,4 +20,12 @@ export async function listAdminDealsLite(): Promise<AdminDealLite[]> {
 
 export async function assignLender(dealId: string, lenderId: string): Promise<void> {
   await apiClient.patch(`/admin/deals/${dealId}/assign-lender`, { lender_id: lenderId });
+}
+
+export async function deleteLender(lenderId: string): Promise<void> {
+  await apiClient.delete(`/admin/lenders/${lenderId}`);
+}
+
+export async function deleteDeal(dealId: string): Promise<void> {
+  await apiClient.delete(`/admin/deals/${dealId}`);
 }

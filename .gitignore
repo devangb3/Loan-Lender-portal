@@ -24,6 +24,8 @@ backend/.env
 backend/.env.local
 backend/.env.*.local
 backend/uploads/
+backend/loan_portal.db
+backend/demo_data/
 
 # Frontend runtime
 frontend/.env

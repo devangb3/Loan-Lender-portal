@@ -28,3 +28,7 @@ export async function createSubstage(payload: {
 export async function deleteSubstage(substageId: string): Promise<void> {
   await apiClient.delete(`/admin/substages/${substageId}`);
 }
+
+export async function deleteDeal(dealId: string): Promise<void> {
+  await apiClient.delete(`/admin/deals/${dealId}`);
+}

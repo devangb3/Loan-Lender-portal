@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import csv
 import io
+from uuid import UUID
 
 from fastapi import UploadFile
-from sqlmodel import Session
+from sqlmodel import Session, select
 
+from app.common.exceptions import NotFoundException
 from app.common.utils import paginate
+from app.modules.deals.models import Deal
 from app.modules.lenders.models import Lender
 from app.modules.lenders.repository import LenderRepository
 from app.modules.lenders.schemas import LenderImportError, LenderImportResponse, LenderResponse
@@ -81,3 +84,23 @@ class LenderService:
             )
             for item in lenders
         ]
+
+    def _delete_related_records(self, lender_id: UUID) -> None:
+        """Handle related records before deleting a lender."""
+        # Set lender_id to None for all deals that reference this lender
+        deals = list(self.session.exec(select(Deal).where(Deal.lender_id == lender_id)))
+        for deal in deals:
+            deal.lender_id = None
+            self.session.add(deal)
+
+    def delete_lender(self, lender_id: UUID) -> None:
+        lender = self.repo.get_by_id(lender_id)
+        if not lender:
+            raise NotFoundException("Lender not found")
+
+        # Handle related records first
+        self._delete_related_records(lender_id)
+
+        # Now delete the lender itself
+        self.repo.delete(lender_id)
+        self.session.commit()

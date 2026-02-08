@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, File, UploadFile
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, File, UploadFile, status
 from sqlmodel import Session
 
 from app.common.base import UserRole
@@ -35,3 +37,12 @@ def list_lenders(
     session: Session = Depends(get_session),
 ) -> list[LenderResponse]:
     return LenderService(session).list_lenders(page, page_size, query, specialty, state, property_type, min_loan, max_loan)
+
+
+@router.delete("/admin/lenders/{lender_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_lender(
+    lender_id: UUID,
+    _: object = Depends(require_roles(UserRole.ADMIN)),
+    session: Session = Depends(get_session),
+):
+    LenderService(session).delete_lender(lender_id)

@@ -99,3 +99,19 @@ class PartnerService:
         self.session.commit()
         self.session.refresh(partner)
         return partner
+
+    def deactivate_partner(self, partner_id: UUID) -> PartnerProfile:
+        partner = self.repo.get_by_id(partner_id)
+        if not partner:
+            raise NotFoundException("Partner not found")
+        
+        partner.is_active = False
+        user = self.session.get(User, partner.user_id)
+        if not user:
+            raise NotFoundException("Partner user not found")
+        user.is_active = False
+        
+        self.repo.save(partner)
+        self.session.commit()
+        self.session.refresh(partner)
+        return partner

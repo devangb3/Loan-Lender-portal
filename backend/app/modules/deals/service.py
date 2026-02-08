@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from fastapi import UploadFile
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.common.base import DealStage, UserRole
 from app.common.exceptions import ForbiddenException, NotFoundException
@@ -12,13 +12,17 @@ from app.core.security import get_password_hash
 from app.modules.auth.models import AuthToken, User
 from app.modules.borrowers.models import BorrowerProfile
 from app.modules.borrowers.repository import BorrowerRepository
+from app.modules.commissions.models import Commission
 from app.modules.deals.models import Deal
 from app.modules.deals.repository import DealRepository
 from app.modules.deals.schemas import DealDetailResponse, DealListItem, DealSubmitRequest
 from app.modules.deals.validators import validate_loan_amount
+from app.modules.files.models import FileAsset
 from app.modules.files.service import FileService
+from pathlib import Path
 from app.modules.notifications.service import NotificationService
 from app.modules.partners.models import PartnerProfile
+from app.modules.pipeline.models import DealStageEvent
 from app.modules.pipeline.service import PipelineService
 
 
@@ -180,3 +184,38 @@ class DealService:
         self.session.commit()
         self.session.refresh(deal)
         return deal
+
+    def _delete_related_records(self, deal_id: UUID) -> None:
+        """Delete all records related to a deal before deleting the deal itself."""
+        # Delete deal stage events
+        stage_events = list(self.session.exec(select(DealStageEvent).where(DealStageEvent.deal_id == deal_id)))
+        for event in stage_events:
+            self.session.delete(event)
+
+        # Delete commission if exists
+        commission = self.session.exec(select(Commission).where(Commission.deal_id == deal_id)).first()
+        if commission:
+            self.session.delete(commission)
+
+        # Delete file assets and their physical files
+        file_assets = list(self.session.exec(select(FileAsset).where(FileAsset.deal_id == deal_id)))
+        for asset in file_assets:
+            # Delete physical file if it exists
+            file_path = Path(asset.storage_path)
+            if file_path.exists():
+                try:
+                    file_path.unlink()
+                except OSError:
+                    pass  # Ignore errors if file doesn't exist or can't be deleted
+            self.session.delete(asset)
+
+    def delete_deal(self, deal_id: UUID) -> None:
+        deal = self.repo.get_by_id(deal_id)
+        if not deal:
+            raise NotFoundException("Deal not found")
+
+        self._delete_related_records(deal_id)
+
+        # Now delete the deal itself
+        self.repo.delete(deal_id)
+        self.session.commit()

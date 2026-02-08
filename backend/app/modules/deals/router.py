@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, UploadFile, status
 from sqlmodel import Session
 
 from app.common.base import PropertyType, TransactionType, UserRole
@@ -95,3 +95,12 @@ def admin_update_deal_notes(
 ) -> DealDetailResponse:
     DealService(session).update_internal_notes(deal_id, payload.internal_notes)
     return DealService(session).get_admin_deal(deal_id)
+
+
+@router.delete("/admin/deals/{deal_id}", status_code=status.HTTP_204_NO_CONTENT)
+def admin_delete_deal(
+    deal_id: UUID,
+    _: object = Depends(require_roles(UserRole.ADMIN)),
+    session: Session = Depends(get_session),
+):
+    DealService(session).delete_deal(deal_id)
