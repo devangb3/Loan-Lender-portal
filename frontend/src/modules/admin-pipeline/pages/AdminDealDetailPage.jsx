@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Alert, Button, Chip, CircularProgress, Stack, TextField } from "@/components/ui/mui";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, CheckCircle, Trash2, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Plus, Trash2, XCircle } from "lucide-react";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { APP_ROUTES } from "@/shared/constants";
 import {
@@ -280,6 +280,13 @@ export function AdminDealDetailPage() {
             ) : (
               <p className="text-xs text-muted-foreground/70">No sub-stages configured for {stageLabel}.</p>
             )}
+            <Link
+              to={APP_ROUTES.ADMIN_SUBSTAGES}
+              className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-primary"
+            >
+              <Plus size={12} />
+              Manage Sub-stages
+            </Link>
           </Card>
 
           {/* Accept / Decline */}

@@ -8,7 +8,7 @@ import { APP_ROUTES } from "@/shared/constants";
 
 export function DealCardOverlay({ deal }) {
   return (
-    <Paper sx={{ p: 1.5 }} className="shadow-drag-lift">
+    <Paper sx={{ p: 2 }} className="shadow-drag-lift">
       <Stack spacing={0.5}>
         <Typography variant="body2" fontWeight={700}>{deal.property_address}</Typography>
         <Chip size="small" label={deal.loan_amount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })} />
@@ -48,10 +48,10 @@ export function DraggableDealCard({ deal }) {
       onPointerDown={handlePointerDown}
       onClick={handleClick}
     >
-      <div className="px-3 py-2.5">
-        <Stack spacing={0.5} sx={{ minWidth: 0 }}>
+      <div className="px-4 py-3.5">
+        <Stack spacing={0.75} sx={{ minWidth: 0 }}>
           <div className="flex items-start justify-between gap-1">
-            <Typography variant="body2" fontWeight={700} className="min-w-0 truncate">{deal.property_address}</Typography>
+            <Typography variant="body2" fontWeight={700} className="min-w-0 text-[13px]">{deal.property_address}</Typography>
             <Link
               to={detailPath}
               onClick={(e) => e.stopPropagation()}
@@ -63,9 +63,6 @@ export function DraggableDealCard({ deal }) {
             </Link>
           </div>
           <Chip size="small" label={deal.loan_amount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })} />
-          {deal.partner_full_name && (
-            <Typography variant="caption" className="text-muted-foreground truncate">{deal.partner_full_name}</Typography>
-          )}
         </Stack>
       </div>
     </Paper>
