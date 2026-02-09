@@ -8,12 +8,11 @@ from app.core.db import get_session
 from app.modules.auth.deps import get_current_user
 from app.modules.auth.schemas import (
     AuthResponse,
-    BorrowerInviteAcceptRequest,
+    ChangePasswordRequest,
     ForgotPasswordRequest,
     LoginRequest,
     PartnerSignupRequest,
     ResetPasswordRequest,
-    VerifyEmailRequest,
     UserResponse,
 )
 from app.modules.auth.service import AuthService
@@ -25,7 +24,15 @@ router = APIRouter(prefix="/auth")
 def partner_signup(payload: PartnerSignupRequest, session: Session = Depends(get_session)) -> AuthResponse:
     service = AuthService(session)
     user = service.signup_partner(payload)
-    return AuthResponse(user=UserResponse(id=str(user.id), email=user.email, role=user.role, full_name=user.full_name))
+    return AuthResponse(
+        user=UserResponse(
+            id=str(user.id),
+            email=user.email,
+            role=user.role,
+            must_reset_password=user.must_reset_password,
+            full_name=user.full_name,
+        )
+    )
 
 
 @router.post("/login", response_model=AuthResponse)
@@ -51,7 +58,15 @@ def login(payload: LoginRequest, response: Response, session: Session = Depends(
         max_age=settings.refresh_token_expire_days * 86400,
     )
 
-    return AuthResponse(user=UserResponse(id=str(user.id), email=user.email, role=user.role, full_name=user.full_name))
+    return AuthResponse(
+        user=UserResponse(
+            id=str(user.id),
+            email=user.email,
+            role=user.role,
+            must_reset_password=user.must_reset_password,
+            full_name=user.full_name,
+        )
+    )
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
@@ -62,7 +77,15 @@ def logout(response: Response):
 
 @router.get("/me", response_model=AuthResponse)
 def me(user=Depends(get_current_user)) -> AuthResponse:
-    return AuthResponse(user=UserResponse(id=str(user.id), email=user.email, role=user.role, full_name=user.full_name))
+    return AuthResponse(
+        user=UserResponse(
+            id=str(user.id),
+            email=user.email,
+            role=user.role,
+            must_reset_password=user.must_reset_password,
+            full_name=user.full_name,
+        )
+    )
 
 
 @router.post("/password/forgot", status_code=status.HTTP_204_NO_CONTENT)
@@ -75,30 +98,10 @@ def reset_password(payload: ResetPasswordRequest, session: Session = Depends(get
     AuthService(session).reset_password(payload)
 
 
-@router.post("/verify-email", response_model=AuthResponse)
-def verify_email(payload: VerifyEmailRequest, session: Session = Depends(get_session)) -> AuthResponse:
-    user = AuthService(session).verify_email(payload)
-    return AuthResponse(user=UserResponse(id=str(user.id), email=user.email, role=user.role, full_name=user.full_name))
-
-
-@router.post("/borrower/invite/accept", response_model=AuthResponse)
-def borrower_invite_accept(
-    payload: BorrowerInviteAcceptRequest,
-    response: Response,
+@router.post("/password/change", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(
+    payload: ChangePasswordRequest,
+    user=Depends(get_current_user),
     session: Session = Depends(get_session),
-) -> AuthResponse:
-    service = AuthService(session)
-    user = service.accept_borrower_invite(payload)
-    access = service.login(LoginRequest(email=user.email, password=payload.password))[1]
-
-    secure = settings.env != "development"
-    response.set_cookie(
-        key="access_token",
-        value=access,
-        httponly=True,
-        secure=secure,
-        samesite="lax",
-        max_age=settings.access_token_expire_minutes * 60,
-    )
-
-    return AuthResponse(user=UserResponse(id=str(user.id), email=user.email, role=user.role, full_name=user.full_name))
+):
+    AuthService(session).change_password(user, payload)

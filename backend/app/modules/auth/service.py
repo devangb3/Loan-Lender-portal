@@ -1,6 +1,5 @@
 from __future__ import annotations
-import datetime
-from datetime import UTC
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from sqlmodel import Session
@@ -8,6 +7,7 @@ from sqlmodel import select
 
 from app.common.base import PartnerTier, UserRole
 from app.common.exceptions import BadRequestException, ForbiddenException
+from app.core.config import settings
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -17,12 +17,11 @@ from app.core.security import (
 from app.modules.auth.models import AuthToken, User
 from app.modules.auth.repository import AuthRepository
 from app.modules.auth.schemas import (
-    BorrowerInviteAcceptRequest,
+    ChangePasswordRequest,
     ForgotPasswordRequest,
     LoginRequest,
     PartnerSignupRequest,
     ResetPasswordRequest,
-    VerifyEmailRequest,
 )
 from app.modules.auth.validators import validate_password
 from app.modules.notifications.service import NotificationService
@@ -46,6 +45,7 @@ class AuthService:
             hashed_password=get_password_hash(payload.password),
             role=UserRole.PARTNER,
             full_name=payload.name,
+            is_active=False,
             is_email_verified=False,
         )
         self.repo.create_user(user)
@@ -60,20 +60,6 @@ class AuthService:
             is_active=False,
         )
         self.session.add(partner_profile)
-
-        verify_token = AuthToken(
-            user_id=user.id,
-            token=str(uuid4()),
-            token_type="verify_email",
-            expires_at=AuthToken.default_expiry(48),
-        )
-        self.repo.create_token(verify_token)
-
-        self.notifications.send_email(
-            to_email=user.email,
-            subject="Verify your partner account",
-            html=f"Use token {verify_token.token} to verify your account.",
-        )
 
         self.session.commit()
         self.session.refresh(user)
@@ -110,10 +96,15 @@ class AuthService:
             expires_at=AuthToken.default_expiry(2),
         )
         self.repo.create_token(token)
+        reset_link = f"{settings.frontend_url.rstrip('/')}/auth/reset-password?token={token.token}"
         self.notifications.send_email(
             to_email=user.email,
             subject="Reset your password",
-            html=f"Reset token: {token.token}",
+            html=(
+                "<p>You requested a password reset for your Loan Referral Platform account.</p>"
+                f"<p><a href='{reset_link}'>Reset Password</a></p>"
+                "<p>If you did not request this, you can ignore this email.</p>"
+            ),
         )
         self.session.commit()
 
@@ -128,43 +119,22 @@ class AuthService:
             raise BadRequestException("Invalid reset user")
 
         user.hashed_password = get_password_hash(payload.new_password)
+        user.must_reset_password = False
         user.updated_at = datetime.now(UTC)
         self.repo.save(user)
         self.repo.consume_token(token)
         self.session.commit()
 
-    def verify_email(self, payload: VerifyEmailRequest) -> User:
-        token = self.repo.get_valid_token(payload.token, "verify_email")
-        if not token:
-            raise BadRequestException("Invalid or expired verification token")
+    def change_password(self, user: User, payload: ChangePasswordRequest) -> None:
+        if not verify_password(payload.current_password, user.hashed_password):
+            raise ForbiddenException("Current password is incorrect")
 
-        user = self.repo.get_user_by_id(token.user_id)
-        if not user:
-            raise BadRequestException("User not found")
+        validate_password(payload.new_password)
+        if verify_password(payload.new_password, user.hashed_password):
+            raise BadRequestException("New password must be different from current password")
 
-        user.is_email_verified = True
+        user.hashed_password = get_password_hash(payload.new_password)
+        user.must_reset_password = False
+        user.updated_at = datetime.now(UTC)
         self.repo.save(user)
-        self.repo.consume_token(token)
         self.session.commit()
-        self.session.refresh(user)
-        return user
-
-    def accept_borrower_invite(self, payload: BorrowerInviteAcceptRequest) -> User:
-        validate_password(payload.password)
-        token = self.repo.get_valid_token(payload.token, "borrower_invite")
-        if not token:
-            raise BadRequestException("Invalid or expired invite token")
-
-        user = self.repo.get_user_by_id(token.user_id)
-        if not user:
-            raise BadRequestException("Invite user missing")
-
-        user.hashed_password = get_password_hash(payload.password)
-        user.full_name = payload.full_name
-        user.is_active = True
-        user.is_email_verified = True
-        self.repo.save(user)
-        self.repo.consume_token(token)
-        self.session.commit()
-        self.session.refresh(user)
-        return user

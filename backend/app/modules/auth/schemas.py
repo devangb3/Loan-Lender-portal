@@ -28,20 +28,16 @@ class ResetPasswordRequest(BaseModel):
     new_password: str = Field(min_length=8)
 
 
-class VerifyEmailRequest(BaseModel):
-    token: str
-
-
-class BorrowerInviteAcceptRequest(BaseModel):
-    token: str
-    password: str = Field(min_length=8)
-    full_name: str = Field(min_length=2)
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8)
 
 
 class UserResponse(BaseModel):
     id: str
     email: EmailStr
     role: UserRole
+    must_reset_password: bool
     full_name: str | None
 
 

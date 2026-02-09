@@ -17,6 +17,7 @@ class User(SQLModel, table=True):
     role: UserRole
     is_active: bool = Field(default=True)
     is_email_verified: bool = Field(default=False)
+    must_reset_password: bool = Field(default=False)
     full_name: str | None = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC), nullable=False)
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC), nullable=False)

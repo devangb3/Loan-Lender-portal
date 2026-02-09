@@ -30,6 +30,7 @@ class BorrowerService:
                     stage=deal.stage,
                     referring_partner_name=partner_name,
                     created_at=deal.created_at,
+                    stage_changed_at=deal.stage_changed_at,
                 )
             )
         return BorrowerDashboardResponse(deals=items)

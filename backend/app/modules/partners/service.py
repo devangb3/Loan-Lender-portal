@@ -5,10 +5,12 @@ from uuid import UUID
 from sqlmodel import Session, select
 
 from app.common.base import CommissionStatus, DealStage
-from app.common.exceptions import NotFoundException
+from app.common.exceptions import BadRequestException, NotFoundException
+from app.core.config import settings
 from app.modules.auth.models import User
 from app.modules.commissions.models import Commission
 from app.modules.deals.models import Deal
+from app.modules.notifications.service import NotificationService
 from app.modules.partners.models import PartnerProfile
 from app.modules.partners.repository import PartnerRepository
 from app.modules.partners.schemas import PartnerAdminMetricsResponse, PartnerDashboardResponse, PartnerUpdateRequest
@@ -72,6 +74,7 @@ class PartnerService:
         if not partner:
             raise NotFoundException("Partner not found")
 
+        was_approved = partner.is_approved
         status_changed = payload.is_active is not None or payload.is_approved is not None
 
         if payload.tier is not None:
@@ -79,8 +82,14 @@ class PartnerService:
         if payload.commission_goal is not None:
             validate_commission_goal(payload.commission_goal)
             partner.commission_goal = payload.commission_goal
-        if payload.is_approved is not None:
+        if payload.is_approved is True:
+            partner.is_approved = True
+            partner.is_active = True
+        elif payload.is_approved is not None:
             partner.is_approved = payload.is_approved
+
+        if payload.is_active is True and not partner.is_approved:
+            raise BadRequestException("Partner must be approved before activation")
         if payload.is_active is not None:
             partner.is_active = payload.is_active
 
@@ -89,12 +98,19 @@ class PartnerService:
             if not user:
                 raise NotFoundException("Partner user not found")
 
-            if payload.is_active is not None:
-                user.is_active = payload.is_active
+            user.is_active = partner.is_active
+            user.is_email_verified = partner.is_approved
 
-            if partner.is_active and partner.is_approved:
-                user.is_active = True
-                user.is_email_verified = True
+            if not was_approved and partner.is_approved:
+                login_link = f"{settings.frontend_url.rstrip('/')}/auth/login"
+                NotificationService(self.session).send_email(
+                    to_email=user.email,
+                    subject="Your partner account is approved",
+                    html=(
+                        "<p>Your partner account has been approved.</p>"
+                        f"<p>You can now log in here: <a href='{login_link}'>{login_link}</a></p>"
+                    ),
+                )
 
         self.repo.save(partner)
         self.session.commit()

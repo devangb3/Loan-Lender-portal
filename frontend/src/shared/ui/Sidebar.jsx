@@ -9,6 +9,7 @@ import {
   FileText,
   FilePlus,
   BookOpen,
+  KeyRound,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -34,10 +35,12 @@ const borrowerLinks = [
   { to: "/borrower", label: "Applications", icon: LayoutDashboard },
 ];
 
+const accountLink = { to: "/account/password", label: "Account Security", icon: KeyRound };
+
 function getLinks(role) {
-  if (role === "admin") return adminLinks;
-  if (role === "partner") return partnerLinks;
-  return borrowerLinks;
+  if (role === "admin") return [...adminLinks, accountLink];
+  if (role === "partner") return [...partnerLinks, accountLink];
+  return [...borrowerLinks, accountLink];
 }
 
 export function Sidebar({ collapsed, onToggle }) {

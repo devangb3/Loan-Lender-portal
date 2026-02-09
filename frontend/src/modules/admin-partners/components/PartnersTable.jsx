@@ -92,6 +92,15 @@ export function PartnersTable({ partners, onChanged }) {
     }
   };
 
+  const handleApprove = async (partnerId) => {
+    try {
+      await updatePartner(partnerId, { is_approved: true });
+      await onChanged();
+    } catch {
+      // Error feedback is handled globally by the API client interceptor.
+    }
+  };
+
   return (
     <>
       {goalError ? <Alert severity="error">{goalError}</Alert> : null}
@@ -148,10 +157,24 @@ export function PartnersTable({ partners, onChanged }) {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Chip label={partner.is_active ? "Active" : "Inactive"} color={partner.is_active ? "success" : "default"} size="small" />
+                    <Chip
+                      label={partner.is_approved ? (partner.is_active ? "Active" : "Approved (Inactive)") : "Pending Approval"}
+                      color={partner.is_active ? "success" : "default"}
+                      size="small"
+                    />
                   </TableCell>
                   <TableCell>
-                    {partner.is_active ? (
+                    {!partner.is_approved ? (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={() => {
+                          void handleApprove(partner.id);
+                        }}
+                      >
+                        Approve
+                      </Button>
+                    ) : partner.is_active ? (
                       <Button size="small" color="error" variant="outlined" onClick={() => handleDeactivateClick(partner)}>
                         Deactivate
                       </Button>
@@ -163,7 +186,7 @@ export function PartnersTable({ partners, onChanged }) {
                           void handleActivate(partner.id);
                         }}
                       >
-                        Activate
+                        Reactivate
                       </Button>
                     )}
                   </TableCell>

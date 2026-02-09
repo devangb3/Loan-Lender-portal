@@ -26,7 +26,7 @@ export function SignupForm() {
     setError(null);
     try {
       await signup(form);
-      setSuccess("Account created. Wait for admin activation before login.");
+      setSuccess("Account created. Wait for admin approval email before login.");
     } catch {
       setError("Signup failed. Verify inputs and retry.");
     }

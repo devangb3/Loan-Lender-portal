@@ -1,72 +1,130 @@
-import { jsx as _jsx } from "react/jsx-runtime";
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { AppShell } from "../shared/ui/AppShell";
-import { LoginPage } from "../modules/auth/pages/LoginPage";
-import { SignupPage } from "../modules/auth/pages/SignupPage";
-import { BorrowerDashboardPage } from "../modules/borrower/pages/BorrowerDashboardPage";
+
 import { AdminCommissionsPage } from "../modules/admin-commissions/pages/AdminCommissionsPage";
 import { AdminLendersPage } from "../modules/admin-lenders/pages/AdminLendersPage";
 import { AdminPartnersPage } from "../modules/admin-partners/pages/AdminPartnersPage";
 import { AdminPipelinePage } from "../modules/admin-pipeline/pages/AdminPipelinePage";
 import { AdminSubstagesPage } from "../modules/admin-pipeline/pages/AdminSubstagesPage";
-import { PartnerDashboardPage } from "../modules/partner/pages/PartnerDashboardPage";
-import { PartnerDealsPage } from "../modules/partner/pages/PartnerDealsPage";
-import { PartnerDealNewPage } from "../modules/partner/pages/PartnerDealNewPage";
-import { PartnerResourcesPage } from "../modules/resources/pages/PartnerResourcesPage";
+import { AccountPasswordPage } from "../modules/auth/pages/AccountPasswordPage";
+import { ForgotPasswordPage } from "../modules/auth/pages/ForgotPasswordPage";
+import { LoginPage } from "../modules/auth/pages/LoginPage";
+import { ResetPasswordPage } from "../modules/auth/pages/ResetPasswordPage";
+import { SignupPage } from "../modules/auth/pages/SignupPage";
+import { BorrowerDashboardPage } from "../modules/borrower/pages/BorrowerDashboardPage";
 import { ExportsPage } from "../modules/exports/pages/ExportsPage";
+import { PartnerDashboardPage } from "../modules/partner/pages/PartnerDashboardPage";
+import { PartnerDealNewPage } from "../modules/partner/pages/PartnerDealNewPage";
+import { PartnerDealsPage } from "../modules/partner/pages/PartnerDealsPage";
+import { PartnerResourcesPage } from "../modules/resources/pages/PartnerResourcesPage";
+import { AppShell } from "../shared/ui/AppShell";
 import { RouteGuard } from "./RouteGuard";
+
 export const router = createBrowserRouter([
-    { path: "/", element: _jsx(Navigate, { to: "/auth/login", replace: true }) },
-    { path: "/auth/login", element: _jsx(LoginPage, {}) },
-    { path: "/auth/signup", element: _jsx(SignupPage, {}) },
-    {
-        path: "/",
-        element: _jsx(AppShell, {}),
-        children: [
-            {
-                path: "partner",
-                element: (_jsx(RouteGuard, { role: "partner", children: _jsx(PartnerDashboardPage, {}) })),
-            },
-            {
-                path: "partner/deals",
-                element: (_jsx(RouteGuard, { role: "partner", children: _jsx(PartnerDealsPage, {}) })),
-            },
-            {
-                path: "partner/deals/new",
-                element: (_jsx(RouteGuard, { role: "partner", children: _jsx(PartnerDealNewPage, {}) })),
-            },
-            {
-                path: "partner/resources",
-                element: (_jsx(RouteGuard, { role: "partner", children: _jsx(PartnerResourcesPage, {}) })),
-            },
-            {
-                path: "borrower",
-                element: (_jsx(RouteGuard, { role: "borrower", children: _jsx(BorrowerDashboardPage, {}) })),
-            },
-            {
-                path: "admin/pipeline",
-                element: (_jsx(RouteGuard, { role: "admin", children: _jsx(AdminPipelinePage, {}) })),
-            },
-            {
-                path: "admin/pipeline/substages",
-                element: (_jsx(RouteGuard, { role: "admin", children: _jsx(AdminSubstagesPage, {}) })),
-            },
-            {
-                path: "admin/partners",
-                element: (_jsx(RouteGuard, { role: "admin", children: _jsx(AdminPartnersPage, {}) })),
-            },
-            {
-                path: "admin/lenders",
-                element: (_jsx(RouteGuard, { role: "admin", children: _jsx(AdminLendersPage, {}) })),
-            },
-            {
-                path: "admin/commissions",
-                element: (_jsx(RouteGuard, { role: "admin", children: _jsx(AdminCommissionsPage, {}) })),
-            },
-            {
-                path: "admin/exports",
-                element: (_jsx(RouteGuard, { role: "admin", children: _jsx(ExportsPage, {}) })),
-            },
-        ],
-    },
+  { path: "/", element: <Navigate to="/auth/login" replace /> },
+  { path: "/auth/login", element: <LoginPage /> },
+  { path: "/auth/signup", element: <SignupPage /> },
+  { path: "/auth/forgot-password", element: <ForgotPasswordPage /> },
+  { path: "/auth/reset-password", element: <ResetPasswordPage /> },
+  {
+    path: "/",
+    element: <AppShell />,
+    children: [
+      {
+        path: "partner",
+        element: (
+          <RouteGuard role="partner">
+            <PartnerDashboardPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "partner/deals",
+        element: (
+          <RouteGuard role="partner">
+            <PartnerDealsPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "partner/deals/new",
+        element: (
+          <RouteGuard role="partner">
+            <PartnerDealNewPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "partner/resources",
+        element: (
+          <RouteGuard role="partner">
+            <PartnerResourcesPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "borrower",
+        element: (
+          <RouteGuard role="borrower">
+            <BorrowerDashboardPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "admin/pipeline",
+        element: (
+          <RouteGuard role="admin">
+            <AdminPipelinePage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "admin/pipeline/substages",
+        element: (
+          <RouteGuard role="admin">
+            <AdminSubstagesPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "admin/partners",
+        element: (
+          <RouteGuard role="admin">
+            <AdminPartnersPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "admin/lenders",
+        element: (
+          <RouteGuard role="admin">
+            <AdminLendersPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "admin/commissions",
+        element: (
+          <RouteGuard role="admin">
+            <AdminCommissionsPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "admin/exports",
+        element: (
+          <RouteGuard role="admin">
+            <ExportsPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: "account/password",
+        element: (
+          <RouteGuard roles={["admin", "partner", "borrower"]}>
+            <AccountPasswordPage />
+          </RouteGuard>
+        ),
+      },
+    ],
+  },
 ]);

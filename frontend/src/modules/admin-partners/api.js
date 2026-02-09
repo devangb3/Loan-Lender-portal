@@ -9,8 +9,10 @@ export async function updatePartner(partnerId, payload) {
   let message = "Partner updated successfully.";
   if (Object.prototype.hasOwnProperty.call(payload, "commission_goal")) {
     message = "Commission goal updated successfully.";
+  } else if (payload.is_approved === true) {
+    message = "Partner approved successfully.";
   } else if (payload.is_active === true) {
-    message = "Partner activated successfully.";
+    message = "Partner reactivated successfully.";
   } else if (payload.is_active === false) {
     message = "Partner deactivated successfully.";
   }

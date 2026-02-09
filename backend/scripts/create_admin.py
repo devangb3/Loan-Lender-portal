@@ -6,6 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from sqlalchemy.exc import ProgrammingError
 from sqlmodel import Session, select
 
 from app.common.base import UserRole
@@ -21,7 +22,19 @@ def main() -> None:
     full_name = input("Admin full name: ").strip() or "Platform Admin"
 
     with Session(engine) as session:
-        existing = session.exec(select(User).where(User.email == email)).first()
+        try:
+            existing = session.exec(select(User).where(User.email == email)).first()
+        except ProgrammingError as exc:
+            if "must_reset_password" in str(exc):
+                print(
+                    "Database schema is out of date.\n"
+                    "Run migrations first:\n"
+                    "  cd backend\n"
+                    "  source ../.venv/bin/activate\n"
+                    "  alembic upgrade head\n"
+                )
+                return
+            raise
         if existing:
             print("Admin user already exists.")
             return
