@@ -13,6 +13,7 @@ from app.modules.auth.schemas import (
     LoginRequest,
     PartnerSignupRequest,
     ResetPasswordRequest,
+    UpdateProfileRequest,
     UserResponse,
 )
 from app.modules.auth.service import AuthService
@@ -74,6 +75,24 @@ def me(user=Depends(get_current_user)) -> AuthResponse:
             role=user.role,
             must_reset_password=user.must_reset_password,
             full_name=user.full_name,
+        )
+    )
+
+
+@router.patch("/profile", response_model=AuthResponse)
+def update_profile(
+    payload: UpdateProfileRequest,
+    user=Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> AuthResponse:
+    updated = AuthService(session).update_profile(user, payload)
+    return AuthResponse(
+        user=UserResponse(
+            id=str(updated.id),
+            email=updated.email,
+            role=updated.role,
+            must_reset_password=updated.must_reset_password,
+            full_name=updated.full_name,
         )
     )
 

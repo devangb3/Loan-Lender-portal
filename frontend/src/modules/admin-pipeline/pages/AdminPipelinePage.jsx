@@ -85,16 +85,19 @@ export function AdminPipelinePage() {
 
   const submitClose = async () => {
     if (!closeDealId) return;
-    const parsed = Number(commissionAmount);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
-      setError("Commission amount must be a number greater than 0.");
+    const trimmed = commissionAmount.trim();
+    const parsed = trimmed === "" ? 0 : Number(trimmed);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      setError("Commission amount must be a valid number.");
       return;
     }
 
     setClosing(true);
     try {
       await moveDealStage(closeDealId, "closed");
-      await createCommission(closeDealId, parsed);
+      if (parsed > 0) {
+        await createCommission(closeDealId, parsed);
+      }
       setCloseDealId(null);
       setCommissionAmount("");
       await refresh();
@@ -176,7 +179,7 @@ export function AdminPipelinePage() {
         <DialogTitle>Close Deal</DialogTitle>
         <DialogContent>
           <Typography variant="body2" className="mb-3 text-muted-foreground">
-            Closing a deal requires entering the partner commission amount.
+            Optionally enter a partner commission amount. Leave blank to close without commission.
           </Typography>
           <TextField
             label="Commission amount (USD)"

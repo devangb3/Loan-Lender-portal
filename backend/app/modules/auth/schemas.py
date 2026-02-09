@@ -33,6 +33,10 @@ class ChangePasswordRequest(BaseModel):
     new_password: str = Field(min_length=8)
 
 
+class UpdateProfileRequest(BaseModel):
+    full_name: str = Field(min_length=2)
+
+
 class UserResponse(BaseModel):
     id: str
     email: EmailStr

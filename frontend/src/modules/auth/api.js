@@ -34,6 +34,15 @@ export async function resetPassword(payload) {
   );
 }
 
+export async function updateProfile(payload) {
+  const response = await apiClient.patch(
+    "/auth/profile",
+    payload,
+    { feedback: { success: "Profile updated." } },
+  );
+  return response.data;
+}
+
 export async function changePassword(payload) {
   await apiClient.post(
     "/auth/password/change",

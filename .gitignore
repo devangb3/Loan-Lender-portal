@@ -48,3 +48,5 @@ Thumbs.db
 
 CLAUDE.md
 .env
+.vercel
+.env*.local
