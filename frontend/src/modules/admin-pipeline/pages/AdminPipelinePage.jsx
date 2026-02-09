@@ -2,6 +2,7 @@ import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Alert, Button, Stack } from "@/components/ui/mui";
 import { useState } from "react";
 import { moveDealStage } from "../api";
+import { DealDetailDialog } from "../components/DealDetailDialog";
 import { KanbanColumn } from "../components/KanbanColumn";
 import { DealCardOverlay } from "../components/DraggableDealCard";
 import { useKanbanData } from "../hooks";
@@ -14,6 +15,7 @@ export function AdminPipelinePage() {
   const { board, refresh } = useKanbanData();
   const [error, setError] = useState(null);
   const [activeDeal, setActiveDeal] = useState(null);
+  const [selectedDealId, setSelectedDealId] = useState(null);
 
   const handleDragStart = (event) => {
     const dealId = String(event.active.id);
@@ -73,7 +75,7 @@ export function AdminPipelinePage() {
               stage={stage}
               title={stageTitle(stage)}
               deals={board[stage] ?? []}
-              onDealDeleted={() => void refresh()}
+              onDealOpen={(dealId) => setSelectedDealId(dealId)}
             />
           ))}
         </div>
@@ -81,6 +83,13 @@ export function AdminPipelinePage() {
           {activeDeal ? <DealCardOverlay deal={activeDeal} /> : null}
         </DragOverlay>
       </DndContext>
+
+      <DealDetailDialog
+        open={Boolean(selectedDealId)}
+        dealId={selectedDealId}
+        onClose={() => setSelectedDealId(null)}
+        onChanged={() => void refresh()}
+      />
     </div>
   );
 }
