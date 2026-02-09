@@ -1,7 +1,29 @@
 import { apiClient } from "../../shared/api/client";
 
-export async function listLenders(query = "") {
-  const response = await apiClient.get("/admin/lenders", { params: { query } });
+export async function listLenders(filters = {}) {
+  const {
+    page = 1,
+    pageSize = 20,
+    query,
+    specialty,
+    state,
+    property_type: propertyType,
+    min_loan: minLoan,
+    max_loan: maxLoan,
+  } = filters;
+
+  const response = await apiClient.get("/admin/lenders", {
+    params: {
+      page,
+      page_size: pageSize,
+      query,
+      specialty,
+      state,
+      property_type: propertyType,
+      min_loan: minLoan,
+      max_loan: maxLoan,
+    },
+  });
   return response.data;
 }
 

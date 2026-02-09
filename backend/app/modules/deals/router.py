@@ -8,7 +8,7 @@ from sqlmodel import Session
 from app.common.base import PropertyType, TransactionType, UserRole
 from app.core.db import get_session
 from app.modules.auth.deps import require_roles
-from app.modules.deals.schemas import DealDetailResponse, DealListItem, DealNotesUpdateRequest, DealSubmitRequest
+from app.modules.deals.schemas import AdminDealDetailResponse, DealListItem, DealNotesUpdateRequest, DealSubmitRequest, PartnerDealDetailResponse
 from app.modules.deals.service import DealService
 from app.modules.partners.deps import get_current_partner_profile
 from app.modules.pipeline.service import PipelineService
@@ -16,7 +16,7 @@ from app.modules.pipeline.service import PipelineService
 router = APIRouter()
 
 
-@router.post("/partner/deals", response_model=DealDetailResponse)
+@router.post("/partner/deals", response_model=PartnerDealDetailResponse)
 async def partner_submit_deal(
     property_type: PropertyType = Form(...),
     property_address: str = Form(...),
@@ -24,10 +24,10 @@ async def partner_submit_deal(
     transaction_type: TransactionType = Form(...),
     borrower_name: str = Form(...),
     borrower_email: str = Form(...),
-    borrower_phone: str = Form(...),
+    borrower_phone: str = Form(""),
     partner=Depends(get_current_partner_profile),
     session: Session = Depends(get_session),
-) -> DealDetailResponse:
+) -> PartnerDealDetailResponse:
     payload = DealSubmitRequest(
         property_type=property_type,
         property_address=property_address,
@@ -49,12 +49,12 @@ def partner_list_deals(
     return DealService(session).list_partner_deals(partner)
 
 
-@router.get("/partner/deals/{deal_id}", response_model=DealDetailResponse)
+@router.get("/partner/deals/{deal_id}", response_model=PartnerDealDetailResponse)
 def partner_get_deal(
     deal_id: UUID,
     partner=Depends(get_current_partner_profile),
     session: Session = Depends(get_session),
-) -> DealDetailResponse:
+) -> PartnerDealDetailResponse:
     return DealService(session).get_partner_deal(deal_id, partner)
 
 
@@ -76,22 +76,22 @@ def admin_list_deals(
     return DealService(session).list_all_deals()
 
 
-@router.get("/admin/deals/{deal_id}", response_model=DealDetailResponse)
+@router.get("/admin/deals/{deal_id}", response_model=AdminDealDetailResponse)
 def admin_get_deal(
     deal_id: UUID,
     _: object = Depends(require_roles(UserRole.ADMIN)),
     session: Session = Depends(get_session),
-) -> DealDetailResponse:
+) -> AdminDealDetailResponse:
     return DealService(session).get_admin_deal(deal_id)
 
 
-@router.patch("/admin/deals/{deal_id}/notes", response_model=DealDetailResponse)
+@router.patch("/admin/deals/{deal_id}/notes", response_model=AdminDealDetailResponse)
 def admin_update_deal_notes(
     deal_id: UUID,
     payload: DealNotesUpdateRequest,
     _: object = Depends(require_roles(UserRole.ADMIN)),
     session: Session = Depends(get_session),
-) -> DealDetailResponse:
+) -> AdminDealDetailResponse:
     DealService(session).update_internal_notes(deal_id, payload.internal_notes)
     return DealService(session).get_admin_deal(deal_id)
 

@@ -4,7 +4,7 @@ from uuid import UUID
 
 from sqlmodel import Session
 
-from app.common.base import CommissionStatus
+from app.common.base import CommissionStatus, DealStage
 from app.common.exceptions import BadRequestException, NotFoundException
 from app.modules.commissions.models import Commission
 from app.modules.commissions.repository import CommissionRepository
@@ -27,6 +27,8 @@ class CommissionService:
         deal = self.session.get(Deal, deal_id)
         if not deal:
             raise NotFoundException("Deal not found")
+        if deal.stage != DealStage.CLOSED:
+            raise BadRequestException("Commissions can only be created for closed deals")
 
         commission = Commission(deal_id=deal.id, partner_id=deal.partner_id, amount=amount, status=CommissionStatus.PENDING)
         self.repo.create(commission)

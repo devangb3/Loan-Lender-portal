@@ -3,6 +3,8 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { AdminCommissionsPage } from "../modules/admin-commissions/pages/AdminCommissionsPage";
 import { AdminLendersPage } from "../modules/admin-lenders/pages/AdminLendersPage";
 import { AdminPartnersPage } from "../modules/admin-partners/pages/AdminPartnersPage";
+import { AdminDealDetailPage } from "../modules/admin-pipeline/pages/AdminDealDetailPage";
+import { AdminDealsPage } from "../modules/admin-pipeline/pages/AdminDealsPage";
 import { AdminPipelinePage } from "../modules/admin-pipeline/pages/AdminPipelinePage";
 import { AdminSubstagesPage } from "../modules/admin-pipeline/pages/AdminSubstagesPage";
 import { AccountPasswordPage } from "../modules/auth/pages/AccountPasswordPage";
@@ -13,6 +15,7 @@ import { SignupPage } from "../modules/auth/pages/SignupPage";
 import { BorrowerDashboardPage } from "../modules/borrower/pages/BorrowerDashboardPage";
 import { ExportsPage } from "../modules/exports/pages/ExportsPage";
 import { PartnerDashboardPage } from "../modules/partner/pages/PartnerDashboardPage";
+import { PartnerDealDetailPage } from "../modules/partner/pages/PartnerDealDetailPage";
 import { PartnerDealNewPage } from "../modules/partner/pages/PartnerDealNewPage";
 import { PartnerDealsPage } from "../modules/partner/pages/PartnerDealsPage";
 import { PartnerResourcesPage } from "../modules/resources/pages/PartnerResourcesPage";
@@ -49,6 +52,14 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: childPath(APP_ROUTES.PARTNER_DEAL_DETAIL),
+        element: (
+          <RouteGuard role={USER_ROLES.PARTNER}>
+            <PartnerDealDetailPage />
+          </RouteGuard>
+        ),
+      },
+      {
         path: childPath(APP_ROUTES.PARTNER_DEALS_NEW),
         element: (
           <RouteGuard role={USER_ROLES.PARTNER}>
@@ -77,6 +88,22 @@ export const router = createBrowserRouter([
         element: (
           <RouteGuard role={USER_ROLES.ADMIN}>
             <AdminPipelinePage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: childPath(APP_ROUTES.ADMIN_DEALS),
+        element: (
+          <RouteGuard role={USER_ROLES.ADMIN}>
+            <AdminDealsPage />
+          </RouteGuard>
+        ),
+      },
+      {
+        path: childPath(APP_ROUTES.ADMIN_DEAL_DETAIL),
+        element: (
+          <RouteGuard role={USER_ROLES.ADMIN}>
+            <AdminDealDetailPage />
           </RouteGuard>
         ),
       },

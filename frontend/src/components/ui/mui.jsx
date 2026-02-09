@@ -354,7 +354,11 @@ export function TableCell({ children, ...props }) {
 }
 
 export function Dialog({ open, onClose, children }) {
-  return <UIDialog open={open} onOpenChange={(next) => !next && onClose?.()}>{children}</UIDialog>;
+  return (
+    <UIDialog open={open} onOpenChange={(next) => !next && onClose?.()}>
+      <UIDialogContent>{children}</UIDialogContent>
+    </UIDialog>
+  );
 }
 
 export function DialogTitle({ children, ...props }) {
@@ -362,7 +366,7 @@ export function DialogTitle({ children, ...props }) {
 }
 
 export function DialogContent({ children, ...props }) {
-  return <UIDialogContent {...props}>{children}</UIDialogContent>;
+  return <div className="mt-3" {...props}>{children}</div>;
 }
 
 export function DialogContentText({ children, ...props }) {

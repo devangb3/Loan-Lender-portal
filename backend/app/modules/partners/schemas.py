@@ -29,6 +29,7 @@ class PartnerAdminMetricsResponse(BaseModel):
     id: str
     user_id: str
     company: str
+    full_name: str | None = None
     tier: PartnerTier
     commission_goal: float
     is_approved: bool

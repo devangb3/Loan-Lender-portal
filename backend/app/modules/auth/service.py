@@ -20,6 +20,7 @@ from app.modules.auth.schemas import (
     LoginRequest,
     PartnerSignupRequest,
     ResetPasswordRequest,
+    UpdateProfileRequest,
 )
 from app.modules.auth.validators import validate_password
 from app.modules.notifications.service import NotificationService
@@ -120,6 +121,13 @@ class AuthService:
         self.repo.save(user)
         self.repo.consume_token(token)
         self.session.commit()
+
+    def update_profile(self, user: User, payload: UpdateProfileRequest) -> User:
+        user.full_name = payload.full_name.strip()
+        self.repo.save(user)
+        self.session.commit()
+        self.session.refresh(user)
+        return user
 
     def change_password(self, user: User, payload: ChangePasswordRequest) -> None:
         if not verify_password(payload.current_password, user.hashed_password):

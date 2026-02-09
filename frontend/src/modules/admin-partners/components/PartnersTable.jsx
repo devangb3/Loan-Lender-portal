@@ -140,6 +140,7 @@ export function PartnersTable({ partners, onChanged }) {
           <TableHead>
             <TableRow>
               <TableCell>Company</TableCell>
+              <TableCell>Name</TableCell>
               <TableCell>Tier</TableCell>
               <TableCell>Deals</TableCell>
               <TableCell>Conversion</TableCell>
@@ -157,6 +158,7 @@ export function PartnersTable({ partners, onChanged }) {
               return (
                 <TableRow key={partner.id}>
                   <TableCell>{partner.company}</TableCell>
+                  <TableCell>{partner.full_name || "—"}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Select

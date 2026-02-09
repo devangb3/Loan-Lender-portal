@@ -12,6 +12,7 @@ export const APP_ROUTES = {
   AUTH_RESET_PASSWORD: "/auth/reset-password",
   PARTNER_DASHBOARD: "/partner",
   PARTNER_DEALS: "/partner/deals",
+  PARTNER_DEAL_DETAIL: "/partner/deals/:dealId",
   PARTNER_DEALS_NEW: "/partner/deals/new",
   PARTNER_RESOURCES: "/partner/resources",
   BORROWER_DASHBOARD: "/borrower",
@@ -19,6 +20,8 @@ export const APP_ROUTES = {
   ADMIN_SUBSTAGES: "/admin/pipeline/substages",
   ADMIN_PARTNERS: "/admin/partners",
   ADMIN_LENDERS: "/admin/lenders",
+  ADMIN_DEALS: "/admin/deals",
+  ADMIN_DEAL_DETAIL: "/admin/deals/:dealId",
   ADMIN_COMMISSIONS: "/admin/commissions",
   ADMIN_EXPORTS: "/admin/exports",
   ACCOUNT_PASSWORD: "/account/password",
@@ -35,6 +38,7 @@ export const ACCOUNT_ACCESS_ROLES = [USER_ROLES.ADMIN, USER_ROLES.PARTNER, USER_
 export const NAV_LINKS_BY_ROLE = {
   [USER_ROLES.ADMIN]: [
     { to: APP_ROUTES.ADMIN_PIPELINE, label: "Pipeline", icon: "LayoutDashboard" },
+    { to: APP_ROUTES.ADMIN_DEALS, label: "Deals", icon: "FileText" },
     { to: APP_ROUTES.ADMIN_PARTNERS, label: "Partners", icon: "Users" },
     { to: APP_ROUTES.ADMIN_LENDERS, label: "Lenders", icon: "Building2" },
     { to: APP_ROUTES.ADMIN_COMMISSIONS, label: "Commissions", icon: "DollarSign" },

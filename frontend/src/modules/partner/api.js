@@ -10,6 +10,22 @@ export async function fetchPartnerDeals() {
   return response.data;
 }
 
+export async function fetchPartnerDealDetail(dealId) {
+  const response = await apiClient.get(
+    `/partner/deals/${dealId}`,
+    { feedback: { success: false, error: "Failed to load deal details." } },
+  );
+  return response.data;
+}
+
+export async function fetchPartnerDealEvents(dealId) {
+  const response = await apiClient.get(
+    `/partner/deals/${dealId}/events`,
+    { feedback: { success: false, error: "Failed to load deal timeline." } },
+  );
+  return response.data;
+}
+
 export async function submitDeal(formData) {
   const response = await apiClient.post("/partner/deals", formData, {
     feedback: { success: "Deal submitted successfully." },

@@ -4,17 +4,17 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr
 
-from app.common.base import DealStage, PropertyType, TransactionType
+from app.common.base import DealStage, PartnerTier, PropertyType, TransactionType
 
 
 class DealSubmitRequest(BaseModel):
-    property_type: PropertyType
+    property_type: PropertyType = PropertyType.MULTIFAMILY
     property_address: str
     loan_amount: float
-    transaction_type: TransactionType
+    transaction_type: TransactionType = TransactionType.PURCHASE
     borrower_name: str
     borrower_email: EmailStr
-    borrower_phone: str
+    borrower_phone: str = ""
 
 
 class DealListItem(BaseModel):
@@ -25,10 +25,11 @@ class DealListItem(BaseModel):
     substage_id: str | None
     lender_id: str | None
     lender_name: str | None = None
+    partner_full_name: str | None = None
     created_at: datetime
 
 
-class DealDetailResponse(BaseModel):
+class PartnerDealDetailResponse(BaseModel):
     id: str
     property_type: PropertyType
     property_address: str
@@ -36,15 +37,26 @@ class DealDetailResponse(BaseModel):
     transaction_type: TransactionType
     borrower_name: str
     borrower_email: EmailStr
-    borrower_phone: str
+    borrower_phone: str | None
     stage: DealStage
     substage_id: str | None
+    substage_name: str | None = None
     lender_id: str | None
     lender_name: str | None = None
-    internal_notes: str | None
     created_at: datetime
     updated_at: datetime
     days_in_current_stage: int
+
+
+class AdminDealDetailResponse(PartnerDealDetailResponse):
+    internal_notes: str | None
+    partner_id: str
+    partner_company: str | None = None
+    partner_branch: str | None = None
+    partner_phone_number: str | None = None
+    partner_tier: PartnerTier | None = None
+    partner_full_name: str | None = None
+    partner_email: EmailStr | None = None
 
 
 class DealNotesUpdateRequest(BaseModel):
