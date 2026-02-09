@@ -7,6 +7,8 @@ import { login } from "../api";
 import { useAuth } from "../hooks";
 import { homeRouteForRole } from "../utils";
 
+const AUTH_DEBUG_PREFIX = "[AUTH_DEBUG]";
+
 export function LoginForm() {
   const navigate = useNavigate();
   const { refreshUser, setAuthenticatedUser } = useAuth();
@@ -17,14 +19,23 @@ export function LoginForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
+    console.log(`${AUTH_DEBUG_PREFIX} login:submit`, { email });
     try {
       const response = await login({ email, password });
+      console.log(`${AUTH_DEBUG_PREFIX} login:success`, {
+        role: response?.user?.role,
+        email: response?.user?.email,
+      });
       setAuthenticatedUser(response.user);
       navigate(homeRouteForRole(response.user.role), { replace: true });
       window.setTimeout(() => {
-        void refreshUser();
-      }, 300);
-    } catch {
+        void refreshUser({ source: "post_login_verify", preserveUserOnError: true });
+      }, 1200);
+    } catch (error) {
+      console.error(`${AUTH_DEBUG_PREFIX} login:failed`, {
+        status: error?.response?.status,
+        data: error?.response?.data,
+      });
       setError("Login failed. Check credentials or account approval status.");
     }
   };
