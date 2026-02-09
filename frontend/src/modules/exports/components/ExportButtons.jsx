@@ -1,8 +1,30 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { Button, Paper, Stack, Typography } from "@/components/ui/mui";
+import { Button, Typography } from "@/components/ui/mui";
+import { Card } from "@/components/ui/card";
 import { useExports } from "../hooks";
 import { EXPORTS } from "../utils";
+import { Download } from "lucide-react";
+
 export function ExportButtons() {
-    const { loadingEntity, runExport } = useExports();
-    return (_jsxs(Paper, { elevation: 0, sx: { p: 2, border: "1px solid #d6dfd0" }, children: [_jsx(Typography, { variant: "h4", gutterBottom: true, children: "CSV Exports" }), _jsx(Stack, { direction: "row", spacing: 1, flexWrap: "wrap", children: EXPORTS.map((entity) => (_jsxs(Button, { variant: "contained", disabled: loadingEntity === entity, onClick: () => void runExport(entity), children: ["Export ", entity] }, entity))) })] }));
+  const { loadingEntity, runExport } = useExports();
+
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {EXPORTS.map((entity) => (
+        <Card key={entity} className="flex flex-col items-center gap-3 p-5 text-center hover:shadow-card-hover">
+          <div className="rounded-md bg-muted p-2.5">
+            <Download size={22} className="text-muted-foreground" />
+          </div>
+          <Typography variant="h6" className="capitalize">{entity}</Typography>
+          <Button
+            variant="contained"
+            size="small"
+            disabled={loadingEntity === entity}
+            onClick={() => void runExport(entity)}
+          >
+            {loadingEntity === entity ? "Exporting..." : "Export CSV"}
+          </Button>
+        </Card>
+      ))}
+    </div>
+  );
 }

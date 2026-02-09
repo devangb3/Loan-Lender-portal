@@ -1,42 +1,86 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { DndContext } from "@dnd-kit/core";
-import { Alert, Button, Stack, Typography } from "@/components/ui/mui";
-import { useEffect, useState } from "react";
-import { listSubstages, moveDealStage } from "../api";
+import { DndContext, DragOverlay } from "@dnd-kit/core";
+import { Alert, Button, Stack } from "@/components/ui/mui";
+import { useState } from "react";
+import { moveDealStage } from "../api";
 import { KanbanColumn } from "../components/KanbanColumn";
-import { SubStageManager } from "../components/SubStageManager";
+import { DealCardOverlay } from "../components/DraggableDealCard";
 import { useKanbanData } from "../hooks";
 import { STAGE_ORDER, stageTitle } from "../utils";
+import { PageHeader } from "@/shared/ui/PageHeader";
+import { Link } from "react-router-dom";
+import { Settings } from "lucide-react";
+
 export function AdminPipelinePage() {
-    const { board, refresh } = useKanbanData();
-    const [substages, setSubstages] = useState([]);
-    const [error, setError] = useState(null);
-    const refreshSubstages = async () => {
-        try {
-            setSubstages(await listSubstages());
-        }
-        catch {
-            // Error feedback is handled globally by the API client interceptor.
-        }
-    };
-    useEffect(() => {
-        void refreshSubstages();
-    }, []);
-    const handleDragEnd = async (event) => {
-        const dealId = String(event.active.id);
-        const targetStage = event.over ? String(event.over.id) : null;
-        if (!targetStage)
-            return;
-        const sourceStage = String(event.active.data.current?.stage || "");
-        if (sourceStage === targetStage)
-            return;
-        try {
-            await moveDealStage(dealId, targetStage);
-            await refresh();
-        }
-        catch {
-            setError("Unable to move deal stage.");
-        }
-    };
-    return (_jsxs(Stack, { spacing: 2, children: [_jsxs(Stack, { direction: "row", justifyContent: "space-between", alignItems: "center", children: [_jsx(Typography, { variant: "h2", children: "Admin Pipeline" }), _jsx(Button, { variant: "contained", onClick: () => void refresh(), children: "Refresh" })] }), error && _jsx(Alert, { severity: "error", children: error }), _jsx(DndContext, { onDragEnd: (event) => void handleDragEnd(event), children: _jsx(Stack, { direction: "row", spacing: 2, sx: { overflowX: "auto", pb: 1 }, children: STAGE_ORDER.map((stage) => (_jsx(KanbanColumn, { stage: stage, title: stageTitle(stage), deals: board[stage] ?? [], onDealDeleted: () => void refresh() }, stage))) }) }), _jsx(SubStageManager, { substages: substages, onChanged: () => void refreshSubstages() })] }));
+  const { board, refresh } = useKanbanData();
+  const [error, setError] = useState(null);
+  const [activeDeal, setActiveDeal] = useState(null);
+
+  const handleDragStart = (event) => {
+    const dealId = String(event.active.id);
+    for (const stage of STAGE_ORDER) {
+      const found = (board[stage] ?? []).find((d) => String(d.id) === dealId);
+      if (found) {
+        setActiveDeal(found);
+        break;
+      }
+    }
+  };
+
+  const handleDragEnd = async (event) => {
+    setActiveDeal(null);
+    const dealId = String(event.active.id);
+    const targetStage = event.over ? String(event.over.id) : null;
+    if (!targetStage) return;
+    const sourceStage = String(event.active.data.current?.stage || "");
+    if (sourceStage === targetStage) return;
+    try {
+      await moveDealStage(dealId, targetStage);
+      await refresh();
+    } catch {
+      setError("Unable to move deal stage.");
+    }
+  };
+
+  const totalDeals = STAGE_ORDER.reduce((sum, stage) => sum + (board[stage]?.length ?? 0), 0);
+
+  return (
+    <div className="full-bleed page-enter">
+      <div className="pb-2">
+        <PageHeader
+          title="Pipeline"
+          subtitle={`${totalDeals} deal${totalDeals !== 1 ? "s" : ""} across ${STAGE_ORDER.length} stages`}
+          actions={
+            <Stack direction="row" spacing={1}>
+              <Link to="/admin/pipeline/substages">
+                <Button variant="outlined" size="small" className="gap-1.5">
+                  <Settings size={14} />
+                  Sub-Stages
+                </Button>
+              </Link>
+              <Button variant="contained" onClick={() => void refresh()}>Refresh</Button>
+            </Stack>
+          }
+        />
+      </div>
+
+      {error && <Alert severity="error">{error}</Alert>}
+
+      <DndContext onDragStart={handleDragStart} onDragEnd={(event) => void handleDragEnd(event)}>
+        <div className="grid auto-rows-min grid-cols-7 gap-3 pb-6">
+          {STAGE_ORDER.map((stage) => (
+            <KanbanColumn
+              key={stage}
+              stage={stage}
+              title={stageTitle(stage)}
+              deals={board[stage] ?? []}
+              onDealDeleted={() => void refresh()}
+            />
+          ))}
+        </div>
+        <DragOverlay dropAnimation={null}>
+          {activeDeal ? <DealCardOverlay deal={activeDeal} /> : null}
+        </DragOverlay>
+      </DndContext>
+    </div>
+  );
 }

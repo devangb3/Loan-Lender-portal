@@ -1,44 +1,66 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import PropTypes from "prop-types";
-import { Alert, Button, Paper, Stack, Typography } from "@/components/ui/mui";
+import { Alert, Button, Stack, Typography } from "@/components/ui/mui";
+import { Card } from "@/components/ui/card";
 import { useState } from "react";
+import { Upload } from "lucide-react";
 import { importLenders } from "../api";
+
 export function LenderImportForm({ onImported }) {
-    const [file, setFile] = useState(null);
-    const [status, setStatus] = useState(null);
-    const [error, setError] = useState(null);
-    const handleImport = async () => {
-        if (!file)
-            return;
-        setError(null);
-        setStatus(null);
-        try {
-            const result = await importLenders(file);
-            setStatus(`Imported: ${result.imported_count}, Skipped: ${result.skipped_count}`);
-            onImported();
+  const [file, setFile] = useState(null);
+  const [status, setStatus] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleImport = async () => {
+    if (!file) return;
+    setError(null);
+    setStatus(null);
+    try {
+      const result = await importLenders(file);
+      setStatus(`Imported: ${result.imported_count}, Skipped: ${result.skipped_count}`);
+      onImported();
+    } catch (err) {
+      let message = "Failed to import lenders";
+      if (err && typeof err === "object" && "response" in err) {
+        const axiosError = err;
+        if (axiosError.response?.status === 403) {
+          message = "Access denied. Please ensure you are logged in as an admin user.";
+        } else if (axiosError.response?.data?.detail) {
+          message = axiosError.response.data.detail;
+        } else if (axiosError.response?.status) {
+          message = `Request failed with status ${axiosError.response.status}`;
         }
-        catch (err) {
-            let message = "Failed to import lenders";
-            if (err && typeof err === "object" && "response" in err) {
-                const axiosError = err;
-                if (axiosError.response?.status === 403) {
-                    message = "Access denied. Please ensure you are logged in as an admin user.";
-                }
-                else if (axiosError.response?.data?.detail) {
-                    message = axiosError.response.data.detail;
-                }
-                else if (axiosError.response?.status) {
-                    message = `Request failed with status ${axiosError.response.status}`;
-                }
-            }
-            else if (err instanceof Error) {
-                message = err.message;
-            }
-            setError(message);
-        }
-    };
-    return (_jsx(Paper, { elevation: 0, sx: { p: 2, border: "1px solid #d6dfd0" }, children: _jsxs(Stack, { spacing: 1, children: [_jsx(Typography, { variant: "h5", children: "Lender CSV Import" }), status && _jsx(Alert, { severity: "info", children: status }), error && _jsx(Alert, { severity: "error", children: error }), _jsxs(Button, { component: "label", variant: "outlined", children: ["Select CSV", _jsx("input", { type: "file", hidden: true, accept: ".csv", onChange: (event) => setFile(event.target.files?.[0] ?? null) })] }), file && _jsxs(Typography, { variant: "body2", children: ["Selected: ", file.name] }), _jsx(Button, { variant: "contained", onClick: () => void handleImport(), disabled: !file, children: "Import" })] }) }));
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+      setError(message);
+    }
+  };
+
+  return (
+    <Card className="p-5">
+      <Stack spacing={2}>
+        <Typography variant="h5">Lender CSV Import</Typography>
+
+        {status && <Alert severity="info">{status}</Alert>}
+        {error && <Alert severity="error">{error}</Alert>}
+
+        <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-dashed border-border p-4 transition-colors hover:border-primary/50 hover:bg-muted/30">
+          <div className="rounded-md bg-muted p-2">
+            <Upload size={20} className="text-muted-foreground" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">{file ? file.name : "Choose a CSV file"}</p>
+            <p className="text-xs text-muted-foreground">{file ? `${(file.size / 1024).toFixed(1)} KB` : "Click to browse"}</p>
+          </div>
+          <input type="file" className="hidden" accept=".csv" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+        </label>
+
+        <Button variant="contained" onClick={() => void handleImport()} disabled={!file}>Import</Button>
+      </Stack>
+    </Card>
+  );
 }
+
 LenderImportForm.propTypes = {
-    onImported: PropTypes.func.isRequired,
+  onImported: PropTypes.func.isRequired,
 };

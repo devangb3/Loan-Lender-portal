@@ -13,6 +13,13 @@ const badgeVariants = cva(
         destructive: "border-transparent bg-destructive text-destructive-foreground",
         outline: "text-foreground",
         muted: "border-border bg-muted text-muted-foreground",
+        submitted: "border-transparent bg-stage-submitted/15 text-stage-submitted",
+        review: "border-transparent bg-stage-review/15 text-stage-review",
+        accepted: "border-transparent bg-stage-accepted/15 text-stage-accepted",
+        progress: "border-transparent bg-stage-progress/15 text-stage-progress",
+        closing: "border-transparent bg-stage-closing/15 text-stage-closing",
+        closed: "border-transparent bg-stage-closed/15 text-stage-closed",
+        declined: "border-transparent bg-stage-declined/15 text-stage-declined",
       },
     },
     defaultVariants: {

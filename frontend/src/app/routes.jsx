@@ -8,7 +8,10 @@ import { AdminCommissionsPage } from "../modules/admin-commissions/pages/AdminCo
 import { AdminLendersPage } from "../modules/admin-lenders/pages/AdminLendersPage";
 import { AdminPartnersPage } from "../modules/admin-partners/pages/AdminPartnersPage";
 import { AdminPipelinePage } from "../modules/admin-pipeline/pages/AdminPipelinePage";
+import { AdminSubstagesPage } from "../modules/admin-pipeline/pages/AdminSubstagesPage";
 import { PartnerDashboardPage } from "../modules/partner/pages/PartnerDashboardPage";
+import { PartnerDealsPage } from "../modules/partner/pages/PartnerDealsPage";
+import { PartnerDealNewPage } from "../modules/partner/pages/PartnerDealNewPage";
 import { PartnerResourcesPage } from "../modules/resources/pages/PartnerResourcesPage";
 import { ExportsPage } from "../modules/exports/pages/ExportsPage";
 import { RouteGuard } from "./RouteGuard";
@@ -25,6 +28,14 @@ export const router = createBrowserRouter([
                 element: (_jsx(RouteGuard, { role: "partner", children: _jsx(PartnerDashboardPage, {}) })),
             },
             {
+                path: "partner/deals",
+                element: (_jsx(RouteGuard, { role: "partner", children: _jsx(PartnerDealsPage, {}) })),
+            },
+            {
+                path: "partner/deals/new",
+                element: (_jsx(RouteGuard, { role: "partner", children: _jsx(PartnerDealNewPage, {}) })),
+            },
+            {
                 path: "partner/resources",
                 element: (_jsx(RouteGuard, { role: "partner", children: _jsx(PartnerResourcesPage, {}) })),
             },
@@ -35,6 +46,10 @@ export const router = createBrowserRouter([
             {
                 path: "admin/pipeline",
                 element: (_jsx(RouteGuard, { role: "admin", children: _jsx(AdminPipelinePage, {}) })),
+            },
+            {
+                path: "admin/pipeline/substages",
+                element: (_jsx(RouteGuard, { role: "admin", children: _jsx(AdminSubstagesPage, {}) })),
             },
             {
                 path: "admin/partners",

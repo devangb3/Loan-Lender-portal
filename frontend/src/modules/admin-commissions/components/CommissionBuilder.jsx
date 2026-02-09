@@ -1,7 +1,8 @@
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 
-import { Alert, Button, MenuItem, Paper, Stack, TextField, Typography } from "@/components/ui/mui";
+import { Alert, Button, MenuItem, Stack, TextField, Typography } from "@/components/ui/mui";
+import { Card } from "@/components/ui/card";
 
 import { createCommission } from "../api";
 
@@ -14,7 +15,6 @@ export function CommissionBuilder({ deals, onCreated, onRefresh }) {
 
   const hasDeals = deals.length > 0;
 
-  // Keep select state in sync with available deals so the button logic is accurate.
   useEffect(() => {
     if (!hasDeals) {
       if (dealId) setDealId("");
@@ -78,7 +78,7 @@ export function CommissionBuilder({ deals, onCreated, onRefresh }) {
   };
 
   return (
-    <Paper elevation={0} sx={{ p: 2, border: "1px solid #d6dfd0" }}>
+    <Card className="p-5">
       <Stack spacing={2}>
         <Typography variant="h5">Create Commission on Closed Deal</Typography>
 
@@ -114,7 +114,7 @@ export function CommissionBuilder({ deals, onCreated, onRefresh }) {
           {loading ? "Creating..." : "Create"}
         </Button>
       </Stack>
-    </Paper>
+    </Card>
   );
 }
 

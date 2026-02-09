@@ -1,4 +1,4 @@
-AI_Engineering_Challenge_v4.docx.pdf
+
 .venv/
 docs/
 
@@ -45,3 +45,5 @@ frontend/.vite/
 # OS
 .DS_Store
 Thumbs.db
+
+CLAUDE.md

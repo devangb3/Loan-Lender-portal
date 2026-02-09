@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 const Card = React.forwardRef(({ className, ...props }, ref) => {
-  return <div ref={ref} className={cn("editorial-shell rounded-lg", className)} {...props} />;
+  return <div ref={ref} className={cn("editorial-shell rounded-lg transition-shadow duration-200", className)} {...props} />;
 });
 Card.displayName = "Card";
 

@@ -38,6 +38,24 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        sidebar: {
+          DEFAULT: "hsl(var(--sidebar))",
+          foreground: "hsl(var(--sidebar-foreground))",
+          muted: "hsl(var(--sidebar-muted))",
+          "muted-foreground": "hsl(var(--sidebar-muted-foreground))",
+          accent: "hsl(var(--sidebar-accent))",
+          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
+          border: "hsl(var(--sidebar-border))",
+        },
+        stage: {
+          submitted: "hsl(var(--stage-submitted))",
+          review: "hsl(var(--stage-review))",
+          accepted: "hsl(var(--stage-accepted))",
+          progress: "hsl(var(--stage-progress))",
+          closing: "hsl(var(--stage-closing))",
+          closed: "hsl(var(--stage-closed))",
+          declined: "hsl(var(--stage-declined))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -46,9 +64,31 @@ export default {
       },
       boxShadow: {
         editorial: "0 12px 30px -16px hsl(var(--foreground) / 0.45)",
+        "card-hover": "0 16px 40px -12px hsl(var(--foreground) / 0.18)",
+        "drag-lift": "0 20px 50px -10px hsl(var(--foreground) / 0.30)",
+        sidebar: "4px 0 24px -6px hsl(var(--foreground) / 0.12)",
       },
       letterSpacing: {
         poster: "0.08em",
+      },
+      keyframes: {
+        "slide-in-left": {
+          "0%": { transform: "translateX(-16px)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        "fade-up": {
+          "0%": { transform: "translateY(8px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        "scale-in": {
+          "0%": { transform: "scale(0.96)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+      },
+      animation: {
+        "slide-in-left": "slide-in-left 0.25s ease-out",
+        "fade-up": "fade-up 0.3s ease-out",
+        "scale-in": "scale-in 0.2s ease-out",
       },
     },
   },

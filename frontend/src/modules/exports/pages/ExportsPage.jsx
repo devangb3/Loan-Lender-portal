@@ -1,6 +1,12 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { Stack, Typography } from "@/components/ui/mui";
+import { Stack } from "@/components/ui/mui";
 import { ExportButtons } from "../components/ExportButtons";
+import { PageHeader } from "@/shared/ui/PageHeader";
+
 export function ExportsPage() {
-    return (_jsxs(Stack, { spacing: 2, children: [_jsx(Typography, { variant: "h2", children: "Admin Exports" }), _jsx(ExportButtons, {})] }));
+  return (
+    <Stack spacing={3} className="page-enter">
+      <PageHeader title="Exports" />
+      <ExportButtons />
+    </Stack>
+  );
 }

@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -18,6 +17,7 @@ import {
   TableRow,
   TextField,
 } from "@/components/ui/mui";
+import { Card } from "@/components/ui/card";
 
 import { deactivatePartner, updatePartner } from "../api";
 import { pct } from "../utils";
@@ -96,7 +96,7 @@ export function PartnersTable({ partners, onChanged }) {
     <>
       {goalError ? <Alert severity="error">{goalError}</Alert> : null}
 
-      <Paper elevation={0} sx={{ border: "1px solid #d6dfd0", overflow: "hidden" }}>
+      <Card className="overflow-hidden">
         <Table>
           <TableHead>
             <TableRow>
@@ -172,13 +172,13 @@ export function PartnersTable({ partners, onChanged }) {
             })}
           </TableBody>
         </Table>
-      </Paper>
+      </Card>
 
       <Dialog open={deactivateDialogOpen} onClose={handleDeactivateCancel}>
         <DialogTitle>Deactivate Partner</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to deactivate "{partnerToDeactivate?.company}"? This will disable their account and prevent them from
+            Are you sure you want to deactivate &quot;{partnerToDeactivate?.company}&quot;? This will disable their account and prevent them from
             logging in. This action can be reversed by activating them again.
           </DialogContentText>
         </DialogContent>

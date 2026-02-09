@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
-import { Button, Grid, MenuItem, Paper, Stack, TextField, Typography } from "@/components/ui/mui";
+import { Button, Grid, MenuItem, Stack, TextField, Typography } from "@/components/ui/mui";
+import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { submitDeal } from "../api";
 import { AddressAutocomplete } from "./AddressAutocomplete";
@@ -30,11 +31,12 @@ export function DealSubmitForm({ onSubmitted }) {
   };
 
   return (
-    <Paper elevation={0} sx={{ p: 3, border: "1px solid #d6dfd0" }}>
+    <Card className="p-5">
       <Typography variant="h4" gutterBottom>
         Submit Deal in 60 Seconds
       </Typography>
       <Stack component="form" spacing={2} onSubmit={handleSubmit}>
+        <Typography className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Property Info</Typography>
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField select name="property_type" fullWidth defaultValue="multifamily" label="Property Type">
@@ -60,11 +62,17 @@ export function DealSubmitForm({ onSubmitted }) {
             <AddressAutocomplete value={address} onChange={setAddress} />
             <input type="hidden" name="property_address" value={address} />
           </Grid>
+        </Grid>
 
+        <Typography className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Loan Details</Typography>
+        <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 4 }}>
             <TextField name="loan_amount" label="Loan Amount" fullWidth type="number" required />
           </Grid>
+        </Grid>
 
+        <Typography className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Borrower Info</Typography>
+        <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 4 }}>
             <TextField name="borrower_name" label="Borrower Name" fullWidth required />
           </Grid>
@@ -82,7 +90,7 @@ export function DealSubmitForm({ onSubmitted }) {
           {submitting ? "Submitting..." : "Submit Deal"}
         </Button>
       </Stack>
-    </Paper>
+    </Card>
   );
 }
 

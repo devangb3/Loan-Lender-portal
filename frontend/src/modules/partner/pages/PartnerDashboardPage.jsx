@@ -1,64 +1,79 @@
-import { Button, LinearProgress, Paper, Stack, Typography } from "@/components/ui/mui";
+import { Button, LinearProgress, Stack, Typography } from "@/components/ui/mui";
 import { Link } from "react-router-dom";
-import { DealSubmitForm } from "../components/DealSubmitForm";
-import { DealsTable } from "../components/DealsTable";
-import { usePartnerData } from "../hooks";
+import { usePartnerDashboard } from "../hooks";
 import { currency } from "../utils";
+import { PageHeader } from "@/shared/ui/PageHeader";
+import { MetricCard } from "@/shared/ui/MetricCard";
+import { Card } from "@/components/ui/card";
+import { FileText, FilePlus, Briefcase, DollarSign, TrendingUp, Clock } from "lucide-react";
 
 export function PartnerDashboardPage() {
-  const { dashboard, commissionSummary, deals, refresh } = usePartnerData();
+  const { dashboard, commissionSummary, refresh } = usePartnerDashboard();
 
   return (
-    <Stack spacing={3}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="h2">Partner Dashboard</Typography>
-        <Stack direction="row" spacing={1}>
-          <Button component={Link} to="/partner/resources" variant="outlined">
-            Resources
-          </Button>
-          <Button onClick={() => void refresh()} variant="contained">
-            Refresh Data
-          </Button>
-        </Stack>
-      </Stack>
+    <Stack spacing={4} className="page-enter">
+      <PageHeader
+        title="Partner Dashboard"
+        actions={
+          <Button onClick={() => void refresh()} variant="contained">Refresh Data</Button>
+        }
+      />
 
       {dashboard ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <MetricCard label="Deals" value={dashboard.deals_submitted.toString()} />
-          <MetricCard label="Closed" value={dashboard.deals_closed.toString()} />
-          <MetricCard label="Volume" value={currency(dashboard.total_loan_volume)} />
-          <MetricCard label="Pending" value={currency(dashboard.pending_commission)} />
-          <MetricCard label="YTD" value={currency(dashboard.ytd_earnings)} />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <MetricCard label="Deals Submitted" value={dashboard.deals_submitted.toString()} icon={Briefcase} />
+          <MetricCard label="Deals Closed" value={dashboard.deals_closed.toString()} icon={TrendingUp} />
+          <MetricCard label="Total Volume" value={currency(dashboard.total_loan_volume)} icon={DollarSign} />
+          <MetricCard label="Pending Commission" value={currency(dashboard.pending_commission)} icon={Clock} />
+          <MetricCard label="YTD Earnings" value={currency(dashboard.ytd_earnings)} icon={DollarSign} />
         </div>
       ) : null}
 
       {commissionSummary ? (
-        <Paper elevation={0} sx={{ p: 2, border: "1px solid #d6dfd0" }}>
+        <Card className="p-5">
           <Typography variant="h5">Commission Goal Progress</Typography>
-          <Typography variant="body2" mb={1}>
-            Goal: {currency(commissionSummary.commission_goal)} • Paid: {currency(commissionSummary.paid)}
+          <Typography variant="body2" className="mb-2 mt-1">
+            Goal: {currency(commissionSummary.commission_goal)} &bull; Paid: {currency(commissionSummary.paid)}
           </Typography>
           <LinearProgress variant="determinate" value={Math.min(commissionSummary.progress_pct, 100)} />
-          <Typography variant="body2" mt={1}>
-            Pending: {currency(commissionSummary.pending)} • Earned: {currency(commissionSummary.earned)} • Paid:{" "}
-            {currency(commissionSummary.paid)}
+          <Typography variant="body2" className="mt-2">
+            Pending: {currency(commissionSummary.pending)} &bull; Earned: {currency(commissionSummary.earned)} &bull; Paid: {currency(commissionSummary.paid)}
           </Typography>
-        </Paper>
+        </Card>
       ) : null}
 
-      <DealSubmitForm onSubmitted={() => void refresh()} />
-      <DealsTable deals={deals} />
-    </Stack>
-  );
-}
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Card className="p-5 transition-shadow hover:shadow-card-hover">
+          <Stack spacing={2}>
+            <div className="flex items-center gap-3">
+              <div className="rounded-md bg-primary/10 p-2 text-primary">
+                <FileText size={22} />
+              </div>
+              <div>
+                <Typography variant="h6">My Deals</Typography>
+                <Typography variant="body2">View and manage your submitted deals</Typography>
+              </div>
+            </div>
+            <Button component={Link} to="/partner/deals" variant="outlined" size="small">View Deals</Button>
+          </Stack>
+        </Card>
 
-function MetricCard({ label, value }) {
-  return (
-    <Paper elevation={0} sx={{ p: 2, border: "1px solid #d6dfd0" }}>
-      <Typography variant="body2" color="text.secondary">
-        {label}
-      </Typography>
-      <Typography variant="h4">{value}</Typography>
-    </Paper>
+        <Card className="p-5 transition-shadow hover:shadow-card-hover">
+          <Stack spacing={2}>
+            <div className="flex items-center gap-3">
+              <div className="rounded-md bg-secondary/10 p-2 text-secondary">
+                <FilePlus size={22} />
+              </div>
+              <div>
+                <Typography variant="h6">Submit Deal</Typography>
+                <Typography variant="body2">Submit a new commercial loan deal</Typography>
+              </div>
+            </div>
+            <Button component={Link} to="/partner/deals/new" variant="outlined" size="small">New Deal</Button>
+          </Stack>
+        </Card>
+      </div>
+    </Stack>
   );
 }
