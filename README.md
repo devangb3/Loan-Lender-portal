@@ -3,19 +3,21 @@
 A full-stack implementation of the **AI Engineering Challenge v4** using:
 
 - Backend: `FastAPI + SQLModel + Alembic + PostgreSQL`
-- Frontend: `React + Vite + MUI + dnd-kit`
+- Frontend: `React + Vite + Tailwind + MUI-compatible internal UI wrapper + dnd-kit`
 - Deployment target: `EC2 (backend)` + `Vercel (frontend)`
 
 ## What is Implemented
 
 ### Roles and Portals
 - `partner`: signup/login, submit deals, dashboard metrics, deal list/detail, commission summary, resources hub
-- `borrower`: invite acceptance, login, view-only dashboard with loan status list
+- `borrower`: auto-created account with temporary password, login, view-only dashboard with stage checklist/timeline
 - `admin`: kanban pipeline, stage/sub-stage actions, partner management, lender import/filter, commission lifecycle, CSV exports
 
 ### Core Flows
-- Partner submits deal (optional file upload)
-- Borrower account auto-created/reused by email with invite token flow
+- Partner submits deal
+- Borrower account auto-created/reused by email with temporary password email and reset reminder
+- Partner account signup remains pending until admin approval; approval triggers login email
+- Password reset uses secure email links for all roles, plus authenticated password change
 - Admin sees deal in Kanban and can move stages / set substages / assign lender / decline with reason
 - Admin creates and updates commission (`pending -> earned -> paid` forward-only)
 - Partner sees commission summary and deal status updates
@@ -46,6 +48,8 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
+Python version for local/dev container parity: `3.12.x`
+
 Run API:
 
 ```bash
@@ -67,7 +71,7 @@ Set these in `backend/.env`:
 - `POSTGRES_PASSWORD=loan_portal`
 - `POSTGRES_DB=loan_portal`
 - `JWT_SECRET_KEY=<long-random-secret>`
-- `FRONTEND_URL=http://localhost:5173`
+- `FRONTEND_URL=http://localhost:6173`
 - `EMAIL_PROVIDER=gmail|console`
 - `EMAIL_FROM=<sender email>`
 - `EMAIL_REPLY_TO=<optional>`
@@ -150,8 +154,7 @@ This runs:
 - `POST /api/v1/auth/login`
 - `POST /api/v1/auth/password/forgot`
 - `POST /api/v1/auth/password/reset`
-- `POST /api/v1/auth/verify-email`
-- `POST /api/v1/auth/borrower/invite/accept`
+- `POST /api/v1/auth/password/change`
 - `GET /api/v1/partner/dashboard`
 - `POST /api/v1/partner/deals`
 - `GET /api/v1/admin/kanban`

@@ -2,11 +2,9 @@ import PropTypes from "prop-types";
 import { Button, Grid, MenuItem, Stack, TextField, Typography } from "@/components/ui/mui";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
+import { PROPERTY_TYPES, TRANSACTION_TYPES } from "@/shared/constants";
 import { submitDeal } from "../api";
 import { AddressAutocomplete } from "./AddressAutocomplete";
-
-const propertyTypes = ["multifamily", "retail", "office", "industrial", "mixed_use", "land", "hospitality", "other"];
-const transactionTypes = ["purchase", "refinance", "cash_out_refinance", "construction", "bridge"];
 
 export function DealSubmitForm({ onSubmitted }) {
   const [submitting, setSubmitting] = useState(false);
@@ -40,7 +38,7 @@ export function DealSubmitForm({ onSubmitted }) {
         <Grid container spacing={2}>
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField select name="property_type" fullWidth defaultValue="multifamily" label="Property Type">
-              {propertyTypes.map((option) => (
+              {PROPERTY_TYPES.map((option) => (
                 <MenuItem key={option} value={option}>
                   {option}
                 </MenuItem>
@@ -50,7 +48,7 @@ export function DealSubmitForm({ onSubmitted }) {
 
           <Grid size={{ xs: 12, md: 6 }}>
             <TextField select name="transaction_type" fullWidth defaultValue="purchase" label="Transaction Type">
-              {transactionTypes.map((option) => (
+              {TRANSACTION_TYPES.map((option) => (
                 <MenuItem key={option} value={option}>
                   {option}
                 </MenuItem>

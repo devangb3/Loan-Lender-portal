@@ -9,35 +9,29 @@ import {
   FileText,
   FilePlus,
   BookOpen,
+  KeyRound,
   LogOut,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ACCOUNT_LINK, APP_ROUTES, NAV_LINKS_BY_ROLE, USER_ROLES } from "@/shared/constants";
 
-const adminLinks = [
-  { to: "/admin/pipeline", label: "Pipeline", icon: LayoutDashboard },
-  { to: "/admin/partners", label: "Partners", icon: Users },
-  { to: "/admin/lenders", label: "Lenders", icon: Building2 },
-  { to: "/admin/commissions", label: "Commissions", icon: DollarSign },
-  { to: "/admin/exports", label: "Exports", icon: Download },
-];
-
-const partnerLinks = [
-  { to: "/partner", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/partner/deals", label: "My Deals", icon: FileText },
-  { to: "/partner/deals/new", label: "Submit Deal", icon: FilePlus },
-  { to: "/partner/resources", label: "Resources", icon: BookOpen },
-];
-
-const borrowerLinks = [
-  { to: "/borrower", label: "Applications", icon: LayoutDashboard },
-];
+const ICON_BY_NAME = {
+  LayoutDashboard,
+  Users,
+  Building2,
+  DollarSign,
+  Download,
+  FileText,
+  FilePlus,
+  BookOpen,
+  KeyRound,
+};
 
 function getLinks(role) {
-  if (role === "admin") return adminLinks;
-  if (role === "partner") return partnerLinks;
-  return borrowerLinks;
+  const roleLinks = NAV_LINKS_BY_ROLE[role] || NAV_LINKS_BY_ROLE[USER_ROLES.BORROWER];
+  return [...roleLinks, ACCOUNT_LINK];
 }
 
 export function Sidebar({ collapsed, onToggle }) {
@@ -47,7 +41,7 @@ export function Sidebar({ collapsed, onToggle }) {
 
   const handleLogout = () => {
     logout();
-    navigate("/auth/login");
+    navigate(APP_ROUTES.AUTH_LOGIN);
   };
 
   return (
@@ -67,25 +61,28 @@ export function Sidebar({ collapsed, onToggle }) {
       {/* Nav links */}
       <nav className="flex-1 overflow-y-auto px-2 py-4">
         <ul className="space-y-1">
-          {links.map((link) => (
-            <li key={link.to}>
-              <NavLink
-                to={link.to}
-                end={link.end}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-                    isActive
-                      ? "border-l-2 border-accent bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "border-l-2 border-transparent text-sidebar-muted-foreground hover:bg-sidebar-muted hover:text-sidebar-foreground"
-                  )
-                }
-              >
-                <link.icon size={18} className="shrink-0" />
-                {!collapsed && <span className="truncate font-body normal-case tracking-normal">{link.label}</span>}
-              </NavLink>
-            </li>
-          ))}
+          {links.map((link) => {
+            const Icon = ICON_BY_NAME[link.icon] || LayoutDashboard;
+            return (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  end={link.end}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                      isActive
+                        ? "border-l-2 border-accent bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "border-l-2 border-transparent text-sidebar-muted-foreground hover:bg-sidebar-muted hover:text-sidebar-foreground"
+                    )
+                  }
+                >
+                  <Icon size={18} className="shrink-0" />
+                  {!collapsed && <span className="truncate font-body normal-case tracking-normal">{link.label}</span>}
+                </NavLink>
+              </li>
+            );
+          })}
         </ul>
       </nav>
 

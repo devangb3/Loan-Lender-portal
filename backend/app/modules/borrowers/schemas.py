@@ -14,6 +14,7 @@ class BorrowerDealItem(BaseModel):
     stage: DealStage
     referring_partner_name: str | None
     created_at: datetime
+    stage_changed_at: datetime
 
 
 class BorrowerDashboardResponse(BaseModel):

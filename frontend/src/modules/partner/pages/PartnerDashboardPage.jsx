@@ -1,4 +1,5 @@
 import { Button, LinearProgress, Stack, Typography } from "@/components/ui/mui";
+import { APP_ROUTES } from "@/shared/constants";
 import { Link } from "react-router-dom";
 import { usePartnerDashboard } from "../hooks";
 import { currency } from "../utils";
@@ -55,7 +56,7 @@ export function PartnerDashboardPage() {
                 <Typography variant="body2">View and manage your submitted deals</Typography>
               </div>
             </div>
-            <Button component={Link} to="/partner/deals" variant="outlined" size="small">View Deals</Button>
+            <Button component={Link} to={APP_ROUTES.PARTNER_DEALS} variant="outlined" size="small">View Deals</Button>
           </Stack>
         </Card>
 
@@ -70,7 +71,7 @@ export function PartnerDashboardPage() {
                 <Typography variant="body2">Submit a new commercial loan deal</Typography>
               </div>
             </div>
-            <Button component={Link} to="/partner/deals/new" variant="outlined" size="small">New Deal</Button>
+            <Button component={Link} to={APP_ROUTES.PARTNER_DEALS_NEW} variant="outlined" size="small">New Deal</Button>
           </Stack>
         </Card>
       </div>

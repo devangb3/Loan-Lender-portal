@@ -1,6 +1,6 @@
-import { jsx as _jsx } from "react/jsx-runtime";
 import PropTypes from "prop-types";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+
 import { apiClient } from "../shared/api/client";
 
 const AuthContext = createContext(undefined);
@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
     [user, loading],
   );
 
-  return _jsx(AuthContext.Provider, { value: value, children: children });
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 AuthProvider.propTypes = {

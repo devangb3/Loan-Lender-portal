@@ -3,6 +3,7 @@ import { SubStageManager } from "../components/SubStageManager";
 import { useEffect, useState } from "react";
 import { listSubstages } from "../api";
 import { PageHeader } from "@/shared/ui/PageHeader";
+import { APP_ROUTES } from "@/shared/constants";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
@@ -27,7 +28,7 @@ export function AdminSubstagesPage() {
         title="Sub-Stages"
         actions={
           <Stack direction="row" spacing={1}>
-            <Link to="/admin/pipeline">
+            <Link to={APP_ROUTES.ADMIN_PIPELINE}>
               <Button variant="outlined" size="small" className="gap-1.5">
                 <ArrowLeft size={14} />
                 Back to Pipeline

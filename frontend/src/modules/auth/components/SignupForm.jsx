@@ -1,6 +1,7 @@
 import { Alert, Button, Stack, TextField, Typography } from "@/components/ui/mui";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
+import { APP_ROUTES } from "@/shared/constants";
 import { Link } from "react-router-dom";
 import { signup } from "../api";
 
@@ -26,7 +27,7 @@ export function SignupForm() {
     setError(null);
     try {
       await signup(form);
-      setSuccess("Account created. Wait for admin activation before login.");
+      setSuccess("Account created. Wait for admin approval email before login.");
     } catch {
       setError("Signup failed. Verify inputs and retry.");
     }
@@ -63,7 +64,7 @@ export function SignupForm() {
 
         <Typography variant="body2" className="text-center">
           Already have an account?{" "}
-          <Link to="/auth/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+          <Link to={APP_ROUTES.AUTH_LOGIN} className="font-semibold text-primary underline-offset-4 hover:underline">
             Login
           </Link>
         </Typography>

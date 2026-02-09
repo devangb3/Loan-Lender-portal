@@ -1,7 +1,12 @@
 import PropTypes from "prop-types";
 import { Chip, Table, TableBody, TableCell, TableHead, TableRow, Typography } from "@/components/ui/mui";
 import { Card } from "@/components/ui/card";
+import { DEAL_STAGE_BADGE_VARIANTS } from "@/shared/constants";
 import { currency } from "../utils";
+
+function stageLabel(stage) {
+  return stage.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 export function DealsTable({ deals }) {
   return (
@@ -22,7 +27,7 @@ export function DealsTable({ deals }) {
               <TableCell>{deal.property_address}</TableCell>
               <TableCell>{currency(deal.loan_amount)}</TableCell>
               <TableCell>
-                <Chip label={deal.stage} />
+                <Chip label={stageLabel(deal.stage)} variant={DEAL_STAGE_BADGE_VARIANTS[deal.stage] || "muted"} />
               </TableCell>
               <TableCell>{new Date(deal.created_at).toLocaleDateString()}</TableCell>
             </TableRow>

@@ -1,5 +1,6 @@
 import { Alert, Button, Stack, TextField, Typography } from "@/components/ui/mui";
 import { Card } from "@/components/ui/card";
+import { APP_ROUTES } from "@/shared/constants";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api";
@@ -21,7 +22,7 @@ export function LoginForm() {
       await refreshUser();
       navigate(homeRouteForRole(response.user.role));
     } catch {
-      setError("Login failed. Check credentials or account activation.");
+      setError("Login failed. Check credentials or account approval status.");
     }
   };
 
@@ -38,11 +39,17 @@ export function LoginForm() {
         <TextField label="Email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" required />
         <TextField label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
 
+        <div className="text-right">
+          <Link to={APP_ROUTES.AUTH_FORGOT_PASSWORD} className="text-sm font-semibold text-primary underline-offset-4 hover:underline">
+            Forgot password?
+          </Link>
+        </div>
+
         <Button type="submit" variant="contained" size="large">Login</Button>
 
         <Typography variant="body2" className="text-center">
           Don&apos;t have an account?{" "}
-          <Link to="/auth/signup" className="font-semibold text-primary underline-offset-4 hover:underline">
+          <Link to={APP_ROUTES.AUTH_SIGNUP} className="font-semibold text-primary underline-offset-4 hover:underline">
             Sign up
           </Link>
         </Typography>
