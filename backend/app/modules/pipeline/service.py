@@ -70,7 +70,6 @@ class PipelineService:
         from_stage = deal.stage
         deal.stage = new_stage
         deal.stage_changed_at = datetime.now(UTC)
-        deal.updated_at = datetime.now(UTC)
         self.session.add(deal)
 
         self.record_stage_event(
@@ -94,7 +93,6 @@ class PipelineService:
 
         old_substage = deal.substage_id
         deal.substage_id = substage_id
-        deal.updated_at = datetime.now(UTC)
         self.session.add(deal)
 
         self.record_stage_event(
@@ -140,7 +138,6 @@ class PipelineService:
             raise NotFoundException("Lender not found")
 
         deal.lender_id = lender.id
-        deal.updated_at = datetime.now(UTC)
         self.session.add(deal)
 
         self.record_stage_event(

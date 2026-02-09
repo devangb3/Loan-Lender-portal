@@ -13,13 +13,13 @@ class ExportRepository:
         self.session = session
 
     def deals(self) -> list[Deal]:
-        return list(self.session.exec(select(Deal)))
+        return self.session.exec(select(Deal)).all()
 
     def partners(self) -> list[PartnerProfile]:
-        return list(self.session.exec(select(PartnerProfile)))
+        return self.session.exec(select(PartnerProfile)).all()
 
     def borrowers(self) -> list[BorrowerProfile]:
-        return list(self.session.exec(select(BorrowerProfile)))
+        return self.session.exec(select(BorrowerProfile)).all()
 
     def commissions(self) -> list[Commission]:
-        return list(self.session.exec(select(Commission)))
+        return self.session.exec(select(Commission)).all()

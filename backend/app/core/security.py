@@ -8,7 +8,6 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
-# Use pbkdf2_sha256 to avoid bcrypt 72-byte limits and backend issues.
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
@@ -35,14 +34,6 @@ def create_access_token(subject: str) -> str:
         subject=subject,
         expires_delta=timedelta(minutes=settings.access_token_expire_minutes),
         token_type="access",
-    )
-
-
-def create_refresh_token(subject: str) -> str:
-    return create_token(
-        subject=subject,
-        expires_delta=timedelta(days=settings.refresh_token_expire_days),
-        token_type="refresh",
     )
 
 

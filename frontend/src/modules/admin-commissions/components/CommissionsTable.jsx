@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { Button, MenuItem, Select, Stack, Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/mui";
+import { MenuItem, Select, Stack, Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/mui";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { updateCommissionStatus } from "../api";
@@ -33,7 +33,7 @@ export function CommissionsTable({ commissions, onChanged }) {
         <TableBody>
           {commissions.map((commission) => (
             <TableRow key={commission.id}>
-              <TableCell>{commission.deal_id}</TableCell>
+              <TableCell>{commission.deal_property_address ?? commission.deal_id}</TableCell>
               <TableCell>{toCurrency(commission.amount)}</TableCell>
               <TableCell>
                 <Stack direction="row" spacing={1} alignItems="center">
@@ -47,7 +47,6 @@ export function CommissionsTable({ commissions, onChanged }) {
                     <MenuItem value="earned">earned</MenuItem>
                     <MenuItem value="paid">paid</MenuItem>
                   </Select>
-                  <Button size="small" variant="text" disabled>Forward-only</Button>
                 </Stack>
               </TableCell>
             </TableRow>

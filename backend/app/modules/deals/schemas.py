@@ -24,6 +24,7 @@ class DealListItem(BaseModel):
     stage: DealStage
     substage_id: str | None
     lender_id: str | None
+    lender_name: str | None = None
     created_at: datetime
 
 
@@ -39,6 +40,7 @@ class DealDetailResponse(BaseModel):
     stage: DealStage
     substage_id: str | None
     lender_id: str | None
+    lender_name: str | None = None
     internal_notes: str | None
     created_at: datetime
     updated_at: datetime

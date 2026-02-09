@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 
 export function SubStageManager({ substages, onChanged }) {
   const [name, setName] = useState("");
-  const [mainStage, setMainStage] = useState("submitted");
+  const [mainStage, setMainStage] = useState(STAGE_ORDER[0]);
 
   const handleCreate = async () => {
     if (!name.trim()) return;

@@ -2,10 +2,12 @@ import { DndContext, DragOverlay } from "@dnd-kit/core";
 import { Alert, Button, Stack } from "@/components/ui/mui";
 import { useState } from "react";
 import { moveDealStage } from "../api";
+import { DealDetailDialog } from "../components/DealDetailDialog";
 import { KanbanColumn } from "../components/KanbanColumn";
 import { DealCardOverlay } from "../components/DraggableDealCard";
 import { useKanbanData } from "../hooks";
 import { STAGE_ORDER, stageTitle } from "../utils";
+import { APP_ROUTES } from "@/shared/constants";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Link } from "react-router-dom";
 import { Settings } from "lucide-react";
@@ -14,6 +16,7 @@ export function AdminPipelinePage() {
   const { board, refresh } = useKanbanData();
   const [error, setError] = useState(null);
   const [activeDeal, setActiveDeal] = useState(null);
+  const [selectedDealId, setSelectedDealId] = useState(null);
 
   const handleDragStart = (event) => {
     const dealId = String(event.active.id);
@@ -51,7 +54,7 @@ export function AdminPipelinePage() {
           subtitle={`${totalDeals} deal${totalDeals !== 1 ? "s" : ""} across ${STAGE_ORDER.length} stages`}
           actions={
             <Stack direction="row" spacing={1}>
-              <Link to="/admin/pipeline/substages">
+              <Link to={APP_ROUTES.ADMIN_SUBSTAGES}>
                 <Button variant="outlined" size="small" className="gap-1.5">
                   <Settings size={14} />
                   Sub-Stages
@@ -73,7 +76,7 @@ export function AdminPipelinePage() {
               stage={stage}
               title={stageTitle(stage)}
               deals={board[stage] ?? []}
-              onDealDeleted={() => void refresh()}
+              onDealOpen={(dealId) => setSelectedDealId(dealId)}
             />
           ))}
         </div>
@@ -81,6 +84,13 @@ export function AdminPipelinePage() {
           {activeDeal ? <DealCardOverlay deal={activeDeal} /> : null}
         </DragOverlay>
       </DndContext>
+
+      <DealDetailDialog
+        open={Boolean(selectedDealId)}
+        dealId={selectedDealId}
+        onClose={() => setSelectedDealId(null)}
+        onChanged={() => void refresh()}
+      />
     </div>
   );
 }

@@ -47,3 +47,4 @@ frontend/.vite/
 Thumbs.db
 
 CLAUDE.md
+.env

@@ -311,20 +311,9 @@ export function Paper({ children, className, sx, style, variant, elevation, ...p
   );
 }
 
-const STAGE_BADGE_MAP = {
-  submitted: "submitted",
-  in_review: "review",
-  accepted: "accepted",
-  in_progress: "progress",
-  closing: "closing",
-  closed: "closed",
-  declined: "declined",
-};
-
-export function Chip({ label, color = "default", size = "medium", className }) {
-  const stageBadge = STAGE_BADGE_MAP[label];
-  const variant = stageBadge || (color === "success" ? "secondary" : color === "error" ? "destructive" : color === "default" ? "muted" : "default");
-  return <Badge className={cn(size === "small" && "px-2 py-0 text-[10px]", className)} variant={variant}>{label}</Badge>;
+export function Chip({ label, color = "default", size = "medium", className, variant }) {
+  const resolvedVariant = variant || (color === "success" ? "secondary" : color === "error" ? "destructive" : color === "default" ? "muted" : "default");
+  return <Badge className={cn(size === "small" && "px-2 py-0 text-[10px]", className)} variant={resolvedVariant}>{label}</Badge>;
 }
 
 export function Alert({ children, severity = "info", sx, style, className, ...props }) {

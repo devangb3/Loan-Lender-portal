@@ -2,22 +2,31 @@ from __future__ import annotations
 
 import csv
 import io
-from typing import Iterable
+from collections.abc import Iterable, Iterator
 
 from fastapi.responses import StreamingResponse
 
 
-def to_csv_response(filename: str, rows: Iterable[dict[str, object]]) -> StreamingResponse:
-    rows = list(rows)
-    headers = rows[0].keys() if rows else []
+def _iter_csv_chunks(headers: list[str], rows: Iterable[dict[str, object]]) -> Iterator[str]:
     buffer = io.StringIO()
-    writer = csv.DictWriter(buffer, fieldnames=headers)
+    writer = csv.DictWriter(buffer, fieldnames=headers, extrasaction="ignore")
     writer.writeheader()
-    writer.writerows(rows)
+    yield buffer.getvalue()
     buffer.seek(0)
+    buffer.truncate(0)
+
+    for row in rows:
+        writer.writerow(row)
+        yield buffer.getvalue()
+        buffer.seek(0)
+        buffer.truncate(0)
+
+
+def to_csv_response(filename: str, headers: list[str], rows: Iterable[dict[str, object]]) -> StreamingResponse:
+    stream = _iter_csv_chunks(headers=headers, rows=rows)
 
     return StreamingResponse(
-        iter([buffer.getvalue()]),
+        stream,
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename={filename}"},
     )

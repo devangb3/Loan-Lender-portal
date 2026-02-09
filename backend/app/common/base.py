@@ -70,3 +70,7 @@ class TimestampModel(SQLModel):
 
 class UUIDModel(SQLModel):
     id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
+
+
+class UUIDTimestampModel(UUIDModel, TimestampModel):
+    pass

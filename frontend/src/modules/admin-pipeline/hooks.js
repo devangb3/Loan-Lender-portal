@@ -1,24 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useAsyncResource } from "@/shared/hooks/useAsyncResource";
 import { fetchKanbanBoard } from "./api";
 
 export function useKanbanData() {
-  const [board, setBoard] = useState({});
-  const [loading, setLoading] = useState(true);
-
-  const refresh = async () => {
-    setLoading(true);
-    try {
-      setBoard(await fetchKanbanBoard());
-    } catch {
-      // Error feedback is handled globally by the API client interceptor.
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void refresh();
-  }, []);
+  const loader = useCallback(() => fetchKanbanBoard(), []);
+  const { data: board, setData: setBoard, loading, refresh } = useAsyncResource(loader, {});
 
   return { board, setBoard, loading, refresh };
 }

@@ -1,14 +1,7 @@
 import { Send, Search, CheckCircle, Loader, Clock, Lock, XCircle } from "lucide-react";
+import { DEAL_STAGE_BADGE_VARIANTS, DEAL_STAGES } from "@/shared/constants";
 
-export const STAGE_ORDER = [
-    "submitted",
-    "in_review",
-    "accepted",
-    "in_progress",
-    "closing",
-    "closed",
-    "declined",
-];
+export const STAGE_ORDER = [...DEAL_STAGES];
 export function stageTitle(value) {
     return value.replaceAll("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
@@ -39,4 +32,8 @@ export function stageColor(stage) {
 
 export function stageIcon(stage) {
     return STAGE_ICONS[stage] || Send;
+}
+
+export function stageBadgeVariant(stage) {
+    return DEAL_STAGE_BADGE_VARIANTS[stage] || "muted";
 }

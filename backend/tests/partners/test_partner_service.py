@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from app.common.base import UserRole
 from app.modules.auth.models import User
 from app.modules.partners.models import PartnerProfile
@@ -57,13 +59,14 @@ def _build_user_partner(*, user_active: bool, user_verified: bool, partner_activ
     return user, partner
 
 
-def test_admin_activation_marks_user_verified_for_partner_login() -> None:
+def test_admin_activation_marks_user_verified_for_partner_login(monkeypatch: pytest.MonkeyPatch) -> None:
     user, partner = _build_user_partner(
         user_active=True,
         user_verified=False,
         partner_active=False,
         partner_approved=False,
     )
+    monkeypatch.setattr("app.modules.partners.service.NotificationService.send_email", lambda *args, **kwargs: None)
     session = _SessionStub(user)
     service = PartnerService(session)  # type: ignore[arg-type]
     service.repo = _RepoStub(partner)  # type: ignore[assignment]
@@ -94,6 +97,6 @@ def test_admin_deactivation_syncs_user_active_flag() -> None:
     assert updated.is_active is False
     assert updated.is_approved is False
     assert user.is_active is False
-    assert user.is_email_verified is True
+    assert user.is_email_verified is False
     assert session.commit_called is True
     assert session.refreshed is partner

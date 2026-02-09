@@ -8,7 +8,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.router import router as api_router
 from app.core.config import settings
-from app.core.db import init_db
 from app.core.logging import configure_logging
 
 logger = logging.getLogger(__name__)
@@ -29,7 +28,7 @@ def _build_allowed_origins() -> list[str]:
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     configure_logging(settings.debug)
-    init_db()
+    settings.validate_runtime_security()
     logger.info("Application startup complete")
     yield
 

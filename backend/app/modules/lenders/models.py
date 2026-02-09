@@ -1,15 +1,12 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
-from uuid import UUID, uuid4
-
-from sqlmodel import Field, SQLModel
+from app.common.base import UUIDTimestampModel
+from sqlmodel import Field
 
 
-class Lender(SQLModel, table=True):
+class Lender(UUIDTimestampModel, table=True):
     __tablename__ = "lenders"
 
-    id: UUID = Field(default_factory=uuid4, primary_key=True, index=True)
     lender_name: str = Field(index=True)
     contact_name: str
     contact_email: str
@@ -20,5 +17,3 @@ class Lender(SQLModel, table=True):
     min_loan: float
     max_loan: float
     notes: str | None = None
-    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC), nullable=False)
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC), nullable=False)

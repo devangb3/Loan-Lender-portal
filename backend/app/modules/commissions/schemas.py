@@ -16,6 +16,7 @@ class CommissionStatusUpdateRequest(BaseModel):
 class CommissionResponse(BaseModel):
     id: str
     deal_id: str
+    deal_property_address: str | None = None
     partner_id: str
     amount: float
     status: CommissionStatus

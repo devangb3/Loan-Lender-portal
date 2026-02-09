@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import secrets
 from datetime import UTC, datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlmodel import Session, select
 
 from app.common.base import DealStage, UserRole
 from app.common.exceptions import BadRequestException, ForbiddenException, NotFoundException
+from app.core.config import settings
 from app.core.security import get_password_hash
-from app.modules.auth.models import AuthToken, User
+from app.modules.auth.models import User
 from app.modules.borrowers.models import BorrowerProfile
 from app.modules.borrowers.repository import BorrowerRepository
 from app.modules.commissions.models import Commission
@@ -16,6 +18,7 @@ from app.modules.deals.models import Deal
 from app.modules.deals.repository import DealRepository
 from app.modules.deals.schemas import DealDetailResponse, DealListItem, DealSubmitRequest
 from app.modules.deals.validators import validate_loan_amount
+from app.modules.lenders.models import Lender
 from app.modules.notifications.service import NotificationService
 from app.modules.partners.models import PartnerProfile
 from app.modules.pipeline.models import DealStageEvent
@@ -28,6 +31,18 @@ class DealService:
         self.repo = DealRepository(session)
         self.borrowers = BorrowerRepository(session)
         self.notifications = NotificationService(session)
+        self._lender_name_cache: dict[UUID, str | None] = {}
+
+    def _resolve_lender_name(self, lender_id: UUID | None) -> str | None:
+        if lender_id is None:
+            return None
+        if lender_id in self._lender_name_cache:
+            return self._lender_name_cache[lender_id]
+
+        lender = self.session.get(Lender, lender_id)
+        lender_name = lender.lender_name if lender else None
+        self._lender_name_cache[lender_id] = lender_name
+        return lender_name
 
     def submit_deal(
         self,
@@ -52,13 +67,15 @@ class DealService:
                     )
                     self.borrowers.save(borrower_profile)
             else:
+                temp_password = self._generate_temporary_password()
                 borrower_user = User(
                     email=borrower_email,
-                    hashed_password=get_password_hash(str(uuid4())),
+                    hashed_password=get_password_hash(temp_password),
                     role=UserRole.BORROWER,
                     full_name=payload.borrower_name,
-                    is_active=False,
-                    is_email_verified=False,
+                    is_active=True,
+                    is_email_verified=True,
+                    must_reset_password=True,
                 )
                 self.session.add(borrower_user)
                 self.session.flush()
@@ -70,17 +87,17 @@ class DealService:
                 )
                 self.borrowers.save(borrower_profile)
 
-                invite_token = AuthToken(
-                    user_id=borrower_user.id,
-                    token=str(uuid4()),
-                    token_type="borrower_invite",
-                    expires_at=AuthToken.default_expiry(72),
-                )
-                self.session.add(invite_token)
+                login_link = f"{settings.frontend_url.rstrip('/')}/auth/login"
                 self.notifications.send_email(
                     to_email=borrower_user.email,
-                    subject="You were invited to review your loan status",
-                    html=f"Use this invite token to activate your borrower account: {invite_token.token}",
+                    subject="Your borrower portal access details",
+                    html=(
+                        "<p>Your loan application has been created in the Loan Referral Platform.</p>"
+                        f"<p>Login here: <a href='{login_link}'>{login_link}</a></p>"
+                        f"<p>Email: <strong>{borrower_user.email}</strong><br/>"
+                        f"Temporary password: <strong>{temp_password}</strong></p>"
+                        "<p>Please reset your password after your first login.</p>"
+                    ),
                 )
 
         if borrower_profile is None:
@@ -117,6 +134,10 @@ class DealService:
         self.session.refresh(deal)
         return deal
 
+    @staticmethod
+    def _generate_temporary_password() -> str:
+        return f"Tmp{secrets.token_hex(6)}A1"
+
     def list_partner_deals(self, partner: PartnerProfile) -> list[DealListItem]:
         deals = self.repo.list_for_partner(partner.id)
         return [
@@ -127,6 +148,7 @@ class DealService:
                 stage=d.stage,
                 substage_id=str(d.substage_id) if d.substage_id else None,
                 lender_id=str(d.lender_id) if d.lender_id else None,
+                lender_name=self._resolve_lender_name(d.lender_id),
                 created_at=d.created_at,
             )
             for d in deals
@@ -142,6 +164,7 @@ class DealService:
                 stage=d.stage,
                 substage_id=str(d.substage_id) if d.substage_id else None,
                 lender_id=str(d.lender_id) if d.lender_id else None,
+                lender_name=self._resolve_lender_name(d.lender_id),
                 created_at=d.created_at,
             )
             for d in deals
@@ -178,6 +201,7 @@ class DealService:
             stage=deal.stage,
             substage_id=str(deal.substage_id) if deal.substage_id else None,
             lender_id=str(deal.lender_id) if deal.lender_id else None,
+            lender_name=self._resolve_lender_name(deal.lender_id),
             internal_notes=deal.internal_notes,
             created_at=deal.created_at,
             updated_at=deal.updated_at,
@@ -189,7 +213,6 @@ class DealService:
         if not deal:
             raise NotFoundException("Deal not found")
         deal.internal_notes = notes
-        deal.updated_at = datetime.now(UTC)
         self.repo.save(deal)
         self.session.commit()
         self.session.refresh(deal)

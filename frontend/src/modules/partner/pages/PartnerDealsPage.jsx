@@ -1,4 +1,5 @@
 import { Button, Stack, TextField } from "@/components/ui/mui";
+import { APP_ROUTES } from "@/shared/constants";
 import { Link } from "react-router-dom";
 import { DealsTable } from "../components/DealsTable";
 import { usePartnerDeals } from "../hooks";
@@ -26,7 +27,7 @@ export function PartnerDealsPage() {
         actions={
           <>
             <Button variant="contained" onClick={() => void refresh()}>Refresh</Button>
-            <Button component={Link} to="/partner/deals/new" variant="contained">
+            <Button component={Link} to={APP_ROUTES.PARTNER_DEALS_NEW} variant="contained">
               <FilePlus size={16} className="mr-2" /> Submit New Deal
             </Button>
           </>
