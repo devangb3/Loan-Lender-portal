@@ -7,8 +7,15 @@ export async function fetchAdminPartners() {
 
 export async function updatePartner(partnerId, payload) {
   let message = "Partner updated successfully.";
-  if (Object.prototype.hasOwnProperty.call(payload, "commission_goal")) {
+  const hasGoal = Object.prototype.hasOwnProperty.call(payload, "commission_goal");
+  const hasTier = Object.prototype.hasOwnProperty.call(payload, "tier");
+
+  if (hasGoal && hasTier) {
+    message = "Partner details updated successfully.";
+  } else if (hasGoal) {
     message = "Commission goal updated successfully.";
+  } else if (hasTier) {
+    message = "Partner tier updated successfully.";
   } else if (payload.is_approved === true) {
     message = "Partner approved successfully.";
   } else if (payload.is_active === true) {

@@ -10,6 +10,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -22,19 +24,25 @@ import { Card } from "@/components/ui/card";
 import { deactivatePartner, updatePartner } from "../api";
 import { pct } from "../utils";
 
+const PARTNER_TIERS = ["bronze", "silver", "gold", "platinum"];
+
 export function PartnersTable({ partners, onChanged }) {
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
   const [partnerToDeactivate, setPartnerToDeactivate] = useState(null);
 
+  const [tierByPartnerId, setTierByPartnerId] = useState({});
   const [goalByPartnerId, setGoalByPartnerId] = useState({});
-  const [goalSavingPartnerId, setGoalSavingPartnerId] = useState(null);
-  const [goalError, setGoalError] = useState(null);
+  const [rowSavingPartnerId, setRowSavingPartnerId] = useState(null);
+  const [rowError, setRowError] = useState(null);
 
   useEffect(() => {
+    const nextTiers = {};
     const nextGoals = {};
     for (const partner of partners) {
+      nextTiers[partner.id] = partner.tier;
       nextGoals[partner.id] = String(partner.commission_goal ?? 0);
     }
+    setTierByPartnerId(nextTiers);
     setGoalByPartnerId(nextGoals);
   }, [partners]);
 
@@ -61,25 +69,47 @@ export function PartnersTable({ partners, onChanged }) {
     setPartnerToDeactivate(null);
   };
 
-  const handleGoalSave = async (partnerId) => {
+  const isRowDirty = (partner) => {
+    const selectedTier = tierByPartnerId[partner.id] ?? partner.tier;
+    const rawGoal = goalByPartnerId[partner.id] ?? String(partner.commission_goal ?? 0);
+    const parsedGoal = Number(rawGoal);
+    const currentGoal = Number(partner.commission_goal ?? 0);
+    const tierChanged = selectedTier !== partner.tier;
+
+    if (!Number.isFinite(parsedGoal)) return true;
+    return tierChanged || parsedGoal !== currentGoal;
+  };
+
+  const handleRowSave = async (partner) => {
+    const partnerId = partner.id;
+    const tier = tierByPartnerId[partnerId] ?? partner.tier;
     const raw = goalByPartnerId[partnerId] ?? "";
     const parsed = Number(raw);
 
-    if (!Number.isFinite(parsed) || parsed < 0) {
-      setGoalError("Commission goal must be a number greater than or equal to 0.");
+    if (!PARTNER_TIERS.includes(tier)) {
+      setRowError("Partner tier must be one of: bronze, silver, gold, or platinum.");
       return;
     }
 
-    setGoalSavingPartnerId(partnerId);
-    setGoalError(null);
+    if (!Number.isFinite(parsed) || parsed < 0) {
+      setRowError("Commission goal must be a number greater than or equal to 0.");
+      return;
+    }
 
+    const updatePayload = {};
+    if (tier !== partner.tier) updatePayload.tier = tier;
+    if (parsed !== Number(partner.commission_goal ?? 0)) updatePayload.commission_goal = parsed;
+    if (Object.keys(updatePayload).length === 0) return;
+
+    setRowSavingPartnerId(partnerId);
+    setRowError(null);
     try {
-      await updatePartner(partnerId, { commission_goal: parsed });
+      await updatePartner(partnerId, updatePayload);
       await onChanged();
     } catch {
-      setGoalError("Failed to update commission goal. Please try again.");
+      setRowError("Failed to save partner row changes. Please try again.");
     } finally {
-      setGoalSavingPartnerId(null);
+      setRowSavingPartnerId(null);
     }
   };
 
@@ -103,7 +133,7 @@ export function PartnersTable({ partners, onChanged }) {
 
   return (
     <>
-      {goalError ? <Alert severity="error">{goalError}</Alert> : null}
+      {rowError ? <Alert severity="error">{rowError}</Alert> : null}
 
       <Card className="overflow-hidden">
         <Table>
@@ -122,13 +152,29 @@ export function PartnersTable({ partners, onChanged }) {
 
           <TableBody>
             {partners.map((partner) => {
-              const savingGoal = goalSavingPartnerId === partner.id;
+              const savingRow = rowSavingPartnerId === partner.id;
 
               return (
                 <TableRow key={partner.id}>
                   <TableCell>{partner.company}</TableCell>
                   <TableCell>
-                    <Chip label={partner.tier} size="small" />
+                    <div className="flex items-center gap-2">
+                      <Select
+                        size="small"
+                        value={tierByPartnerId[partner.id] ?? partner.tier}
+                        disabled={savingRow}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setTierByPartnerId((prev) => ({ ...prev, [partner.id]: value }));
+                        }}
+                      >
+                        {PARTNER_TIERS.map((tierOption) => (
+                          <MenuItem key={tierOption} value={tierOption}>
+                            {tierOption}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </div>
                   </TableCell>
                   <TableCell>{partner.deal_count}</TableCell>
                   <TableCell>{pct(partner.conversion_rate)}</TableCell>
@@ -149,11 +195,8 @@ export function PartnersTable({ partners, onChanged }) {
                           const value = event.target.value;
                           setGoalByPartnerId((prev) => ({ ...prev, [partner.id]: value }));
                         }}
-                        disabled={savingGoal}
+                        disabled={savingRow}
                       />
-                      <Button size="small" variant="outlined" disabled={savingGoal} onClick={() => void handleGoalSave(partner.id)}>
-                        {savingGoal ? "Saving..." : "Save"}
-                      </Button>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -164,31 +207,44 @@ export function PartnersTable({ partners, onChanged }) {
                     />
                   </TableCell>
                   <TableCell>
-                    {!partner.is_approved ? (
+                    <div className="flex items-center gap-2">
                       <Button
                         size="small"
-                        variant="contained"
+                        variant="outlined"
+                        disabled={savingRow || !isRowDirty(partner)}
                         onClick={() => {
-                          void handleApprove(partner.id);
+                          void handleRowSave(partner);
                         }}
                       >
-                        Approve
+                        {savingRow ? "Saving..." : "Save"}
                       </Button>
-                    ) : partner.is_active ? (
-                      <Button size="small" color="error" variant="outlined" onClick={() => handleDeactivateClick(partner)}>
-                        Deactivate
-                      </Button>
-                    ) : (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={() => {
-                          void handleActivate(partner.id);
-                        }}
-                      >
-                        Reactivate
-                      </Button>
-                    )}
+
+                      {!partner.is_approved ? (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={() => {
+                            void handleApprove(partner.id);
+                          }}
+                        >
+                          Approve
+                        </Button>
+                      ) : partner.is_active ? (
+                        <Button size="small" color="error" variant="outlined" onClick={() => handleDeactivateClick(partner)}>
+                          Deactivate
+                        </Button>
+                      ) : (
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={() => {
+                            void handleActivate(partner.id);
+                          }}
+                        >
+                          Reactivate
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               );
