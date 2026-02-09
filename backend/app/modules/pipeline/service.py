@@ -44,6 +44,20 @@ class PipelineService:
         )
         return self.repo.create_event(event)
 
+    def _resolve_partner_name(self, partner_id: UUID) -> str | None:
+        if not hasattr(self, "_partner_name_cache"):
+            self._partner_name_cache: dict[UUID, str | None] = {}
+        if partner_id in self._partner_name_cache:
+            return self._partner_name_cache[partner_id]
+        partner = self.session.get(PartnerProfile, partner_id)
+        if partner:
+            user = self.session.get(User, partner.user_id)
+            name = user.full_name if user else None
+        else:
+            name = None
+        self._partner_name_cache[partner_id] = name
+        return name
+
     def kanban(self) -> dict[str, list[KanbanDealItem]]:
         deals = list(self.session.exec(select(Deal)))
         board: dict[str, list[KanbanDealItem]] = {stage.value: [] for stage in DealStage}
@@ -57,6 +71,7 @@ class PipelineService:
                     borrower_id=str(deal.borrower_id),
                     stage=deal.stage,
                     substage_id=str(deal.substage_id) if deal.substage_id else None,
+                    partner_full_name=self._resolve_partner_name(deal.partner_id),
                 )
             )
         return board
@@ -110,7 +125,20 @@ class PipelineService:
         return deal
 
     def accept(self, deal_id: UUID, actor_user_id: UUID) -> Deal:
-        return self.move_stage(deal_id, actor_user_id, DealStage.ACCEPTED, "Deal accepted")
+        deal = self.move_stage(deal_id, actor_user_id, DealStage.ACCEPTED, "Deal accepted")
+
+        partner = self.session.get(PartnerProfile, deal.partner_id)
+        if partner:
+            partner_user = self.session.get(User, partner.user_id)
+            if partner_user:
+                NotificationService(self.session).send_email(
+                    to_email=partner_user.email,
+                    subject="Deal accepted",
+                    html=f"Your deal at {deal.property_address} has been accepted and is now being processed.",
+                )
+                self.session.commit()
+
+        return deal
 
     def decline(self, deal_id: UUID, actor_user_id: UUID, reason: str) -> Deal:
         validate_decline_reason(reason)

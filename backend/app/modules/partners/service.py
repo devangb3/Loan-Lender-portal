@@ -77,6 +77,13 @@ class PartnerService:
             for partner_id, owed in self.session.exec(commission_metrics_stmt)
         }
 
+        # Batch-load partner user names
+        partner_user_ids = [p.user_id for p in partners]
+        users_by_id: dict[UUID, User] = {}
+        if partner_user_ids:
+            users = list(self.session.exec(select(User).where(User.id.in_(partner_user_ids))))
+            users_by_id = {u.id: u for u in users}
+
         out: list[PartnerAdminMetricsResponse] = []
         for partner in partners:
             metrics = deal_metrics_by_partner.get(
@@ -88,12 +95,14 @@ class PartnerService:
             conversion = (closed_count / deal_count) if deal_count else 0
             total_volume = metrics["total_volume"]
             owed = commission_owed_by_partner.get(partner.id, 0.0)
+            partner_user = users_by_id.get(partner.user_id)
 
             out.append(
                 PartnerAdminMetricsResponse(
                     id=str(partner.id),
                     user_id=str(partner.user_id),
                     company=partner.company,
+                    full_name=partner_user.full_name if partner_user else None,
                     tier=partner.tier,
                     commission_goal=partner.commission_goal,
                     is_approved=partner.is_approved,

@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Alert, Button, Chip, CircularProgress, Stack, TextField } from "@/components/ui/mui";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, CheckCircle, Trash2, XCircle } from "lucide-react";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { APP_ROUTES } from "@/shared/constants";
 import {
+  acceptDeal,
   assignLender,
+  declineDeal,
   deleteDeal,
   fetchAdminDealDetail,
   fetchAdminDealEvents,
@@ -69,6 +71,9 @@ export function AdminDealDetailPage() {
   const [assigningLender, setAssigningLender] = useState(false);
   const [notesDraft, setNotesDraft] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
+  const [accepting, setAccepting] = useState(false);
+  const [declineReason, setDeclineReason] = useState("");
+  const [declining, setDeclining] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
   const [deleting, setDeleting] = useState(false);
@@ -182,6 +187,34 @@ export function AdminDealDetailPage() {
     }
   };
 
+  const canAcceptOrDecline = deal && deal.stage !== "accepted" && deal.stage !== "declined" && deal.stage !== "closed";
+
+  const handleAccept = async () => {
+    setAccepting(true);
+    try {
+      await acceptDeal(dealId);
+      await refreshDetail();
+    } catch {
+      // Feedback toast handled by API client
+    } finally {
+      setAccepting(false);
+    }
+  };
+
+  const handleDecline = async () => {
+    if (declineReason.trim().length < 3) return;
+    setDeclining(true);
+    try {
+      await declineDeal(dealId, declineReason.trim());
+      setDeclineReason("");
+      await refreshDetail();
+    } catch {
+      // Feedback toast handled by API client
+    } finally {
+      setDeclining(false);
+    }
+  };
+
   const handleDelete = async () => {
     setDeleting(true);
     setDeleteError(null);
@@ -248,6 +281,58 @@ export function AdminDealDetailPage() {
               <p className="text-xs text-muted-foreground/70">No sub-stages configured for {stageLabel}.</p>
             )}
           </Card>
+
+          {/* Accept / Decline */}
+          {canAcceptOrDecline ? (
+            <Card className="overflow-hidden">
+              <div className="border-b border-border/50 bg-muted/30 px-5 py-3">
+                <h4 className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Review Decision</h4>
+              </div>
+              <div className="space-y-4 p-5">
+                <p className="text-sm text-muted-foreground">
+                  Accept this deal to proceed, or decline with a reason. The partner will be notified by email.
+                </p>
+                <textarea
+                  className="w-full rounded-md border border-border/80 bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30"
+                  rows={3}
+                  placeholder="Reason (required for decline)…"
+                  value={declineReason}
+                  onChange={(e) => setDeclineReason(e.target.value)}
+                  disabled={accepting || declining}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="contained"
+                    size="small"
+                    className="gap-1.5 bg-emerald-600 hover:bg-emerald-700"
+                    disabled={accepting || declining}
+                    onClick={() => void handleAccept()}
+                  >
+                    <CheckCircle size={14} />
+                    {accepting ? "Accepting…" : "Accept"}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    size="small"
+                    className="gap-1.5"
+                    disabled={accepting || declining || declineReason.trim().length < 3}
+                    onClick={() => void handleDecline()}
+                  >
+                    <XCircle size={14} />
+                    {declining ? "Declining…" : "Decline"}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ) : deal?.stage === "declined" ? (
+            <Card className="overflow-hidden border-destructive/30">
+              <div className="flex items-center gap-2 bg-destructive/5 px-5 py-3">
+                <XCircle size={14} className="text-destructive" />
+                <span className="text-sm font-medium text-destructive">This deal has been declined</span>
+              </div>
+            </Card>
+          ) : null}
 
           {/* Info grid */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">

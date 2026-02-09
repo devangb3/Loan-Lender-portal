@@ -25,6 +25,7 @@ class DealListItem(BaseModel):
     substage_id: str | None
     lender_id: str | None
     lender_name: str | None = None
+    partner_full_name: str | None = None
     created_at: datetime
 
 

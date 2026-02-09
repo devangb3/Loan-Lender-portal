@@ -34,6 +34,7 @@ class DealService:
         self.notifications = NotificationService(session)
         self._lender_name_cache: dict[UUID, str | None] = {}
         self._substage_name_cache: dict[UUID, str | None] = {}
+        self._partner_name_cache: dict[UUID, str | None] = {}
 
     def _resolve_lender_name(self, lender_id: UUID | None) -> str | None:
         if lender_id is None:
@@ -45,6 +46,21 @@ class DealService:
         lender_name = lender.lender_name if lender else None
         self._lender_name_cache[lender_id] = lender_name
         return lender_name
+
+    def _resolve_partner_name(self, partner_id: UUID | None) -> str | None:
+        if partner_id is None:
+            return None
+        if partner_id in self._partner_name_cache:
+            return self._partner_name_cache[partner_id]
+
+        partner = self.session.get(PartnerProfile, partner_id)
+        if partner:
+            user = self.session.get(User, partner.user_id)
+            name = user.full_name if user else None
+        else:
+            name = None
+        self._partner_name_cache[partner_id] = name
+        return name
 
     def _resolve_substage_name(self, substage_id: UUID | None) -> str | None:
         if substage_id is None:
@@ -178,6 +194,7 @@ class DealService:
                 substage_id=str(d.substage_id) if d.substage_id else None,
                 lender_id=str(d.lender_id) if d.lender_id else None,
                 lender_name=self._resolve_lender_name(d.lender_id),
+                partner_full_name=self._resolve_partner_name(d.partner_id),
                 created_at=d.created_at,
             )
             for d in deals

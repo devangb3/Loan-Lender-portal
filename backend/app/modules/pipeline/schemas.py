@@ -15,6 +15,7 @@ class KanbanDealItem(BaseModel):
     borrower_id: str
     stage: DealStage
     substage_id: str | None
+    partner_full_name: str | None = None
 
 
 class StageUpdateRequest(BaseModel):

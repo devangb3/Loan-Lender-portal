@@ -63,6 +63,9 @@ export function DraggableDealCard({ deal }) {
             </Link>
           </div>
           <Chip size="small" label={deal.loan_amount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })} />
+          {deal.partner_full_name && (
+            <Typography variant="caption" className="text-muted-foreground truncate">{deal.partner_full_name}</Typography>
+          )}
         </Stack>
       </div>
     </Paper>

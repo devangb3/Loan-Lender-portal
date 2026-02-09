@@ -90,6 +90,9 @@ export function Sidebar({ collapsed, onToggle }) {
       <div className="border-t border-sidebar-border p-3">
         {!collapsed && user && (
           <div className="mb-3 space-y-1">
+            {user.full_name && (
+              <p className="truncate text-xs font-semibold font-body normal-case tracking-normal text-sidebar-foreground">{user.full_name}</p>
+            )}
             <p className="truncate text-xs font-body normal-case tracking-normal text-sidebar-muted-foreground">{user.email}</p>
             <span className="inline-block rounded-full bg-sidebar-accent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sidebar-accent-foreground">
               {user.role}

@@ -51,7 +51,8 @@ export function AdminDealsPage() {
     return deals.filter(
       (d) =>
         (d.property_address || "").toLowerCase().includes(q) ||
-        (d.lender_name || "").toLowerCase().includes(q),
+        (d.lender_name || "").toLowerCase().includes(q) ||
+        (d.partner_full_name || "").toLowerCase().includes(q),
     );
   }, [deals, query]);
 
@@ -67,7 +68,7 @@ export function AdminDealsPage() {
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search by address or lender…"
+            placeholder="Search by address, lender, or partner…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full rounded-md border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/30"
@@ -91,6 +92,7 @@ export function AdminDealsPage() {
             <thead>
               <tr className="border-b border-border bg-muted/50 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <th className="px-4 py-3">Address</th>
+                <th className="px-4 py-3">Partner</th>
                 <th className="px-4 py-3">Loan Amount</th>
                 <th className="px-4 py-3">Stage</th>
                 <th className="px-4 py-3">Lender</th>
@@ -108,6 +110,7 @@ export function AdminDealsPage() {
                       {deal.property_address}
                     </Link>
                   </td>
+                  <td className="px-4 py-3 text-foreground">{deal.partner_full_name || "N/A"}</td>
                   <td className="px-4 py-3 text-foreground">{toCurrency(deal.loan_amount)}</td>
                   <td className="px-4 py-3">
                     <Chip size="small" label={stageTitle(deal.stage)} variant={stageBadgeVariant(deal.stage)} />
