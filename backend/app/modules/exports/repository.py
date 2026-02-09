@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from collections.abc import Iterable
-
 from sqlmodel import Session, select
 
 from app.modules.borrowers.models import BorrowerProfile
@@ -14,14 +12,14 @@ class ExportRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def deals(self) -> Iterable[Deal]:
-        return self.session.exec(select(Deal))
+    def deals(self) -> list[Deal]:
+        return self.session.exec(select(Deal)).all()
 
-    def partners(self) -> Iterable[PartnerProfile]:
-        return self.session.exec(select(PartnerProfile))
+    def partners(self) -> list[PartnerProfile]:
+        return self.session.exec(select(PartnerProfile)).all()
 
-    def borrowers(self) -> Iterable[BorrowerProfile]:
-        return self.session.exec(select(BorrowerProfile))
+    def borrowers(self) -> list[BorrowerProfile]:
+        return self.session.exec(select(BorrowerProfile)).all()
 
-    def commissions(self) -> Iterable[Commission]:
-        return self.session.exec(select(Commission))
+    def commissions(self) -> list[Commission]:
+        return self.session.exec(select(Commission)).all()
