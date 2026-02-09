@@ -2,11 +2,44 @@ import axios from "axios";
 import { extractErrorMessage, pushFeedback } from "../feedback/store";
 
 const apiBase = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+const AUTH_DEBUG_PREFIX = "[AUTH_DEBUG]";
 
 export const apiClient = axios.create({
   baseURL: apiBase,
   withCredentials: true,
+  headers: {
+    Accept: "application/json",
+    "ngrok-skip-browser-warning": "true",
+  },
 });
+
+function isAuthRequest(url) {
+  return typeof url === "string" && url.includes("/auth");
+}
+
+function currentPath() {
+  if (typeof window === "undefined") return null;
+  return window.location.pathname;
+}
+
+apiClient.interceptors.request.use(
+  (config) => {
+    if (isAuthRequest(config.url)) {
+      console.log(`${AUTH_DEBUG_PREFIX} request`, {
+        method: (config.method || "get").toUpperCase(),
+        baseURL: config.baseURL,
+        url: config.url,
+        withCredentials: config.withCredentials,
+        currentPath: currentPath(),
+      });
+    }
+    return config;
+  },
+  (error) => {
+    console.error(`${AUTH_DEBUG_PREFIX} request_error`, error);
+    return Promise.reject(error);
+  },
+);
 
 function defaultSuccessMessage(method) {
   if (method === "post") return "Created successfully.";
@@ -17,6 +50,17 @@ function defaultSuccessMessage(method) {
 
 apiClient.interceptors.response.use(
   (response) => {
+    if (isAuthRequest(response.config?.url)) {
+      console.log(`${AUTH_DEBUG_PREFIX} response`, {
+        status: response.status,
+        method: (response.config?.method || "get").toUpperCase(),
+        url: response.config?.url,
+        contentType: response.headers?.["content-type"],
+        dataType: typeof response.data,
+        currentPath: currentPath(),
+      });
+    }
+
     const method = (response.config?.method || "get").toLowerCase();
     const feedback = response.config?.feedback || {};
     const successOption = feedback.success;
@@ -32,6 +76,18 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (isAuthRequest(error.config?.url)) {
+      console.error(`${AUTH_DEBUG_PREFIX} response_error`, {
+        status: error.response?.status,
+        method: (error.config?.method || "get").toUpperCase(),
+        url: error.config?.url,
+        contentType: error.response?.headers?.["content-type"],
+        dataType: typeof error.response?.data,
+        data: error.response?.data,
+        currentPath: currentPath(),
+      });
+    }
+
     const feedback = error.config?.feedback || {};
     const errorOption = feedback.error;
 

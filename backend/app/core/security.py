@@ -8,7 +8,6 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
-# Use pbkdf2_sha256 to avoid bcrypt 72-byte limits and backend issues.
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 

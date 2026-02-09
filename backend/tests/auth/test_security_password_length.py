@@ -13,7 +13,6 @@ def test_hash_and_verify_long_password_over_72_bytes() -> None:
 
 
 def test_hash_and_verify_long_utf8_password_over_72_bytes() -> None:
-    # Multi-byte characters to ensure byte-length handling is safe.
     password = ("Äßçé" * 40) + "StrongPass1"
 
     password_hash = get_password_hash(password)

@@ -10,13 +10,12 @@ from sqlalchemy.exc import ProgrammingError
 from sqlmodel import Session, select
 
 from app.common.base import UserRole
-from app.core.db import engine, init_db
+from app.core.db import engine
 from app.core.security import get_password_hash
 from app.modules.auth.models import User
 
 
 def main() -> None:
-    init_db()
     email = input("Admin email: ").strip().lower()
     password = getpass.getpass("Admin password: ")
     full_name = input("Admin full name: ").strip() or "Platform Admin"

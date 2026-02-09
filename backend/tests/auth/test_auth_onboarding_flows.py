@@ -22,17 +22,16 @@ from app.modules.partners.models import PartnerProfile
 from app.modules.partners.schemas import PartnerUpdateRequest
 from app.modules.partners.service import PartnerService
 
-# Ensure all SQLModel tables are registered before create_all().
-from app.modules.auth import models as _auth_models  # noqa: F401
-from app.modules.borrowers import models as _borrower_models  # noqa: F401
-from app.modules.commissions import models as _commission_models  # noqa: F401
-from app.modules.deals import models as _deal_models  # noqa: F401
-from app.modules.lenders import models as _lender_models  # noqa: F401
-from app.modules.notifications import models as _notification_models  # noqa: F401
-from app.modules.partners import models as _partner_models  # noqa: F401
-from app.modules.pipeline import models as _pipeline_models  # noqa: F401
-from app.modules.resources import models as _resource_models  # noqa: F401
-from app.modules.substages import models as _substage_models  # noqa: F401
+from app.modules.auth import models as _auth_models
+from app.modules.borrowers import models as _borrower_models
+from app.modules.commissions import models as _commission_models
+from app.modules.deals import models as _deal_models
+from app.modules.lenders import models as _lender_models
+from app.modules.notifications import models as _notification_models
+from app.modules.partners import models as _partner_models
+from app.modules.pipeline import models as _pipeline_models
+from app.modules.resources import models as _resource_models
+from app.modules.substages import models as _substage_models
 
 
 @pytest.fixture

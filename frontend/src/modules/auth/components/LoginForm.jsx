@@ -7,9 +7,18 @@ import { login } from "../api";
 import { useAuth } from "../hooks";
 import { homeRouteForRole } from "../utils";
 
+const AUTH_DEBUG_PREFIX = "[AUTH_DEBUG]";
+
+function extractAuthUser(data) {
+  if (!data || typeof data !== "object") return null;
+  if (data.user && typeof data.user === "object") return data.user;
+  if (data.email && data.role) return data;
+  return null;
+}
+
 export function LoginForm() {
   const navigate = useNavigate();
-  const { refreshUser } = useAuth();
+  const { refreshUser, setAuthenticatedUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -17,11 +26,28 @@ export function LoginForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
+    console.log(`${AUTH_DEBUG_PREFIX} login:submit`, { email });
     try {
       const response = await login({ email, password });
-      await refreshUser();
-      navigate(homeRouteForRole(response.user.role));
-    } catch {
+      const nextUser = extractAuthUser(response);
+      if (!nextUser) {
+        throw new Error("Malformed /auth/login response payload");
+      }
+      console.log(`${AUTH_DEBUG_PREFIX} login:success`, {
+        role: nextUser?.role,
+        email: nextUser?.email,
+        payloadKeys: Object.keys(response || {}),
+      });
+      setAuthenticatedUser(nextUser);
+      navigate(homeRouteForRole(nextUser.role), { replace: true });
+      window.setTimeout(() => {
+        void refreshUser({ source: "post_login_verify", preserveUserOnError: true });
+      }, 1200);
+    } catch (error) {
+      console.error(`${AUTH_DEBUG_PREFIX} login:failed`, {
+        status: error?.response?.status,
+        data: error?.response?.data,
+      });
       setError("Login failed. Check credentials or account approval status.");
     }
   };
