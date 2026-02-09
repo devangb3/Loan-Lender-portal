@@ -5,7 +5,7 @@ import { DraggableDealCard } from "./DraggableDealCard";
 import { stageColor, stageIcon } from "../utils";
 import { cn } from "@/lib/utils";
 
-export function KanbanColumn({ stage, title, deals, onDealOpen }) {
+export function KanbanColumn({ stage, title, deals }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage });
   const Icon = stageIcon(stage);
 
@@ -30,7 +30,6 @@ export function KanbanColumn({ stage, title, deals, onDealOpen }) {
           <DraggableDealCard
             key={deal.id}
             deal={deal}
-            onOpenDetails={onDealOpen}
           />
         ))}
       </Stack>
@@ -42,5 +41,4 @@ KanbanColumn.propTypes = {
   stage: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   deals: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onDealOpen: PropTypes.func.isRequired,
 };

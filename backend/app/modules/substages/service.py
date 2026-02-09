@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.common.exceptions import NotFoundException
+from app.modules.deals.models import Deal
+from app.modules.pipeline.models import DealStageEvent
 from app.modules.substages.models import SubStage
 from app.modules.substages.repository import SubStageRepository
 from app.modules.substages.schemas import SubStageCreateRequest, SubStageResponse, SubStageUpdateRequest
@@ -52,5 +54,25 @@ class SubStageService:
         item = self.repo.get(substage_id)
         if not item:
             raise NotFoundException("Sub-stage not found")
+
+        deals = list(self.session.exec(select(Deal).where(Deal.substage_id == substage_id)))
+        for deal in deals:
+            deal.substage_id = None
+            self.session.add(deal)
+
+        events = list(
+            self.session.exec(
+                select(DealStageEvent).where(
+                    (DealStageEvent.from_substage_id == substage_id) | (DealStageEvent.to_substage_id == substage_id)
+                )
+            )
+        )
+        for event in events:
+            if event.from_substage_id == substage_id:
+                event.from_substage_id = None
+            if event.to_substage_id == substage_id:
+                event.to_substage_id = None
+            self.session.add(event)
+
         self.repo.delete(item)
         self.session.commit()

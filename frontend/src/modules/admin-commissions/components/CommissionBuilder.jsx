@@ -13,7 +13,8 @@ export function CommissionBuilder({ deals, onCreated, onRefresh }) {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const hasDeals = deals.length > 0;
+  const closedDeals = useMemo(() => deals.filter((deal) => deal.stage === "closed"), [deals]);
+  const hasDeals = closedDeals.length > 0;
 
   useEffect(() => {
     if (!hasDeals) {
@@ -21,11 +22,11 @@ export function CommissionBuilder({ deals, onCreated, onRefresh }) {
       return;
     }
 
-    const currentExists = deals.some((deal) => deal.id === dealId);
+    const currentExists = closedDeals.some((deal) => deal.id === dealId);
     if (!currentExists) {
-      setDealId(deals[0].id);
+      setDealId(closedDeals[0].id);
     }
-  }, [deals, hasDeals, dealId]);
+  }, [closedDeals, hasDeals, dealId]);
 
   const isAmountValid = useMemo(() => {
     const numeric = Number(amount);
@@ -96,14 +97,14 @@ export function CommissionBuilder({ deals, onCreated, onRefresh }) {
 
         <TextField select label="Deal" value={dealId} onChange={(event) => setDealId(event.target.value)} disabled={loading || !hasDeals}>
           {hasDeals ? (
-            deals.map((deal) => (
+            closedDeals.map((deal) => (
               <MenuItem key={deal.id} value={deal.id}>
                 {deal.property_address} ({deal.stage})
               </MenuItem>
             ))
           ) : (
             <MenuItem value="" disabled>
-              No deals available
+              No closed deals available
             </MenuItem>
           )}
         </TextField>

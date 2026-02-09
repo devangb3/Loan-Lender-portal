@@ -48,7 +48,12 @@ export function LoginForm() {
         status: error?.response?.status,
         data: error?.response?.data,
       });
-      setError("Login failed. Check credentials or account approval status.");
+      const detail = error?.response?.data?.detail;
+      if (typeof detail === "string" && detail.trim()) {
+        setError(detail);
+      } else {
+        setError("Login failed. Check credentials or account status.");
+      }
     }
   };
 

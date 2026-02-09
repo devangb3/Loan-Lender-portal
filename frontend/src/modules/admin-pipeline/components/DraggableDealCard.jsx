@@ -1,7 +1,10 @@
 import PropTypes from "prop-types";
+import { useRef } from "react";
 import { Chip, Paper, Stack, Typography } from "@/components/ui/mui";
-import { GripHorizontal } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useDraggable } from "@dnd-kit/core";
+import { Link, useNavigate } from "react-router-dom";
+import { APP_ROUTES } from "@/shared/constants";
 
 export function DealCardOverlay({ deal }) {
   return (
@@ -18,48 +21,49 @@ DealCardOverlay.propTypes = {
   deal: PropTypes.object.isRequired,
 };
 
-export function DraggableDealCard({ deal, onOpenDetails }) {
+export function DraggableDealCard({ deal }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: deal.id, data: { stage: deal.stage } });
+  const navigate = useNavigate();
+  const detailPath = APP_ROUTES.ADMIN_DEAL_DETAIL.replace(":dealId", deal.id);
+  const pointerStart = useRef(null);
 
-  const handleCardClick = () => {
+  const handlePointerDown = (e) => {
+    pointerStart.current = { x: e.clientX, y: e.clientY };
+    listeners?.onPointerDown?.(e);
+  };
+
+  const handleClick = () => {
     if (isDragging) return;
-    if (onOpenDetails) {
-      onOpenDetails(deal.id);
-    }
+    if (!pointerStart.current) return;
+    navigate(detailPath);
   };
 
   return (
     <Paper
       ref={setNodeRef}
       sx={{ p: 0 }}
-      className={isDragging ? "opacity-40" : ""}
+      className={isDragging ? "opacity-40 cursor-grabbing" : "cursor-grab active:cursor-grabbing"}
+      {...attributes}
+      {...listeners}
+      onPointerDown={handlePointerDown}
+      onClick={handleClick}
     >
-      {/* Clickable card body */}
-      <div
-        className="cursor-pointer px-3 pt-2.5 pb-1.5"
-        onClick={handleCardClick}
-      >
+      <div className="px-3 py-2.5">
         <Stack spacing={0.5} sx={{ minWidth: 0 }}>
-          <Typography variant="body2" fontWeight={700} className="truncate">{deal.property_address}</Typography>
+          <div className="flex items-start justify-between gap-1">
+            <Typography variant="body2" fontWeight={700} className="min-w-0 truncate">{deal.property_address}</Typography>
+            <Link
+              to={detailPath}
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="shrink-0 rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              title="Go to deal"
+            >
+              <ArrowUpRight size={14} />
+            </Link>
+          </div>
           <Chip size="small" label={deal.loan_amount.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })} />
         </Stack>
-      </div>
-
-      {/* Drag handle strip at bottom */}
-      <div
-        role="button"
-        aria-label="Hold to drag this deal to another stage"
-        tabIndex={0}
-        {...attributes}
-        {...listeners}
-        onClick={(e) => e.stopPropagation()}
-        className="flex cursor-grab items-center justify-center gap-1.5 border-t border-dashed border-primary/30 bg-primary/[0.04] px-3 py-1 active:cursor-grabbing"
-      >
-        <GripHorizontal size={11} className="text-primary/70" />
-        <span className="select-none text-[10px] font-semibold uppercase tracking-widest text-primary/70">
-          Hold to move
-        </span>
-        <GripHorizontal size={11} className="text-primary/70" />
       </div>
     </Paper>
   );
@@ -67,9 +71,4 @@ export function DraggableDealCard({ deal, onOpenDetails }) {
 
 DraggableDealCard.propTypes = {
   deal: PropTypes.object.isRequired,
-  onOpenDetails: PropTypes.func,
-};
-
-DraggableDealCard.defaultProps = {
-  onOpenDetails: undefined,
 };

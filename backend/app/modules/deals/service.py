@@ -16,13 +16,14 @@ from app.modules.borrowers.repository import BorrowerRepository
 from app.modules.commissions.models import Commission
 from app.modules.deals.models import Deal
 from app.modules.deals.repository import DealRepository
-from app.modules.deals.schemas import DealDetailResponse, DealListItem, DealSubmitRequest
+from app.modules.deals.schemas import AdminDealDetailResponse, DealListItem, DealSubmitRequest, PartnerDealDetailResponse
 from app.modules.deals.validators import validate_loan_amount
 from app.modules.lenders.models import Lender
 from app.modules.notifications.service import NotificationService
 from app.modules.partners.models import PartnerProfile
 from app.modules.pipeline.models import DealStageEvent
 from app.modules.pipeline.service import PipelineService
+from app.modules.substages.models import SubStage
 
 
 class DealService:
@@ -32,6 +33,7 @@ class DealService:
         self.borrowers = BorrowerRepository(session)
         self.notifications = NotificationService(session)
         self._lender_name_cache: dict[UUID, str | None] = {}
+        self._substage_name_cache: dict[UUID, str | None] = {}
 
     def _resolve_lender_name(self, lender_id: UUID | None) -> str | None:
         if lender_id is None:
@@ -43,6 +45,17 @@ class DealService:
         lender_name = lender.lender_name if lender else None
         self._lender_name_cache[lender_id] = lender_name
         return lender_name
+
+    def _resolve_substage_name(self, substage_id: UUID | None) -> str | None:
+        if substage_id is None:
+            return None
+        if substage_id in self._substage_name_cache:
+            return self._substage_name_cache[substage_id]
+
+        substage = self.session.get(SubStage, substage_id)
+        name = substage.name if substage else None
+        self._substage_name_cache[substage_id] = name
+        return name
 
     def submit_deal(
         self,
@@ -170,26 +183,26 @@ class DealService:
             for d in deals
         ]
 
-    def get_partner_deal(self, deal_id: UUID, partner: PartnerProfile) -> DealDetailResponse:
+    def get_partner_deal(self, deal_id: UUID, partner: PartnerProfile) -> PartnerDealDetailResponse:
         deal = self.repo.get_by_id(deal_id)
         if not deal:
             raise NotFoundException("Deal not found")
         if deal.partner_id != partner.id:
             raise ForbiddenException("Cannot access this deal")
-        return self._to_detail(deal)
+        return self._to_partner_detail(deal)
 
-    def get_admin_deal(self, deal_id: UUID) -> DealDetailResponse:
+    def get_admin_deal(self, deal_id: UUID) -> AdminDealDetailResponse:
         deal = self.repo.get_by_id(deal_id)
         if not deal:
             raise NotFoundException("Deal not found")
-        return self._to_detail(deal)
+        return self._to_admin_detail(deal)
 
-    def _to_detail(self, deal: Deal) -> DealDetailResponse:
+    def _to_partner_detail(self, deal: Deal) -> PartnerDealDetailResponse:
         stage_changed_at = deal.stage_changed_at
         if stage_changed_at.tzinfo is None:
             stage_changed_at = stage_changed_at.replace(tzinfo=UTC)
         days = max((datetime.now(UTC) - stage_changed_at).days, 0)
-        return DealDetailResponse(
+        return PartnerDealDetailResponse(
             id=str(deal.id),
             property_type=deal.property_type,
             property_address=deal.property_address,
@@ -200,12 +213,28 @@ class DealService:
             borrower_phone=deal.borrower_phone,
             stage=deal.stage,
             substage_id=str(deal.substage_id) if deal.substage_id else None,
+            substage_name=self._resolve_substage_name(deal.substage_id),
             lender_id=str(deal.lender_id) if deal.lender_id else None,
             lender_name=self._resolve_lender_name(deal.lender_id),
-            internal_notes=deal.internal_notes,
             created_at=deal.created_at,
             updated_at=deal.updated_at,
             days_in_current_stage=days,
+        )
+
+    def _to_admin_detail(self, deal: Deal) -> AdminDealDetailResponse:
+        base = self._to_partner_detail(deal)
+        partner = self.session.get(PartnerProfile, deal.partner_id)
+        partner_user = self.session.get(User, partner.user_id) if partner else None
+        return AdminDealDetailResponse(
+            **base.model_dump(),
+            internal_notes=deal.internal_notes,
+            partner_id=str(deal.partner_id),
+            partner_company=partner.company if partner else None,
+            partner_branch=partner.branch if partner else None,
+            partner_phone_number=partner.phone_number if partner else None,
+            partner_tier=partner.tier if partner else None,
+            partner_full_name=partner_user.full_name if partner_user else None,
+            partner_email=partner_user.email if partner_user else None,
         )
 
     def update_internal_notes(self, deal_id: UUID, notes: str | None) -> Deal:

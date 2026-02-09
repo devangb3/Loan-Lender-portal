@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useAsyncResource } from "@/shared/hooks/useAsyncResource";
-import { fetchCommissionSummary, fetchPartnerDashboard, fetchPartnerDeals } from "./api";
+import { fetchCommissionSummary, fetchPartnerDashboard, fetchPartnerDealDetail, fetchPartnerDealEvents, fetchPartnerDeals } from "./api";
 
 export function usePartnerDashboard() {
   const loader = useCallback(async () => {
@@ -49,4 +49,20 @@ export function usePartnerData() {
     loading,
     refresh,
   };
+}
+
+export function usePartnerDealDetail(dealId) {
+  const loader = useCallback(async () => {
+    if (!dealId) {
+      return { deal: null, events: [] };
+    }
+    const [deal, events] = await Promise.all([
+      fetchPartnerDealDetail(dealId),
+      fetchPartnerDealEvents(dealId),
+    ]);
+    return { deal, events };
+  }, [dealId]);
+
+  const { data, loading, refresh } = useAsyncResource(loader, { deal: null, events: [] });
+  return { deal: data.deal, events: data.events, loading, refresh };
 }
