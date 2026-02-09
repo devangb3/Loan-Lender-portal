@@ -5,7 +5,6 @@ from pathlib import Path
 
 from sqlmodel import Session
 
-# Add parent directory to path to import app modules
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from app.core.config import settings
@@ -23,20 +22,20 @@ def test_email_provider() -> None:
     print(f"From: {settings.email_from}")
 
     if provider not in {"gmail", "console"}:
-        print("❌ EMAIL_PROVIDER must be 'gmail' or 'console'")
+        print(" EMAIL_PROVIDER must be 'gmail' or 'console'")
         return
 
     if provider == "gmail":
         if not settings.gmail_username or not settings.gmail_app_password:
-            print("❌ Gmail mode requires GMAIL_USERNAME and GMAIL_APP_PASSWORD")
+            print(" Gmail mode requires GMAIL_USERNAME and GMAIL_APP_PASSWORD")
             return
-        print("✅ Gmail credentials configured")
+        print(" Gmail credentials configured")
     else:
-        print("⚠️  Console mode: no real email will be sent")
+        print(" Console mode: no real email will be sent")
 
     target = input("Enter recipient email (or press Enter to skip): ").strip()
     if not target:
-        print("⏭️  Skipping send test")
+        print(" Skipping send test")
         return
 
     init_db()
@@ -49,10 +48,10 @@ def test_email_provider() -> None:
                 html="<h2>Email test success</h2><p>Your provider config works.</p>",
             )
             session.commit()
-            print("✅ send_email() completed. Check inbox (or logs for console mode).")
+            print(" send_email() completed. Check inbox (or logs for console mode).")
         except Exception as exc:
             session.rollback()
-            print(f"❌ send_email() failed: {exc}")
+            print(f" send_email() failed: {exc}")
 
 
 if __name__ == "__main__":

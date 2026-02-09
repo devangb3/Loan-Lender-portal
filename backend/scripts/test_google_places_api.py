@@ -12,17 +12,16 @@ def test_google_places_api() -> None:
     print("Testing Google Places API Configuration")
     print("=" * 60)
     
-    # Check if API key is set
+    
     if not settings.google_places_api_key:
-        print("❌ ERROR: GOOGLE_PLACES_API_KEY is not set in .env file")
+        print(" ERROR: GOOGLE_PLACES_API_KEY is not set in .env file")
         print("   Add: GOOGLE_PLACES_API_KEY=your-key-here")
         return
     
-    print(f"✅ GOOGLE_PLACES_API_KEY is set: {settings.google_places_api_key[:10]}...")
+    print(f" GOOGLE_PLACES_API_KEY is set: {settings.google_places_api_key[:10]}...")
     
-    print("\n🔍 Testing Places API Autocomplete...")
+    print("\n Testing Places API Autocomplete...")
     
-    # Test query
     test_query = "1600 Amphitheatre Parkway, Mountain View"
     url = "https://maps.googleapis.com/maps/api/place/autocomplete/json"
     
@@ -40,7 +39,7 @@ def test_google_places_api() -> None:
             data = response.json()
             
             if data.get("status") == "OK":
-                print("✅ API key is valid!")
+                print(" API key is valid!")
                 predictions = data.get("predictions", [])
                 print(f"   Found {len(predictions)} prediction(s) for: '{test_query}'")
                 
@@ -51,7 +50,7 @@ def test_google_places_api() -> None:
                 
             elif data.get("status") == "REQUEST_DENIED":
                 error_message = data.get("error_message", "Unknown error")
-                print(f"❌ API Error: Request Denied")
+                print(f" API Error: Request Denied")
                 print(f"   Error: {error_message}")
                 print("\n   Common causes:")
                 print("   - API key is invalid")
@@ -59,25 +58,24 @@ def test_google_places_api() -> None:
                 print("   - API key restrictions are blocking the request")
                 
             elif data.get("status") == "ZERO_RESULTS":
-                print("⚠️  API is working but no results found for test query")
+                print(" API is working but no results found for test query")
                 print("   This is normal - the API key appears to be valid")
                 
             else:
                 status = data.get("status", "UNKNOWN")
                 error_message = data.get("error_message", "")
-                print(f"⚠️  API returned status: {status}")
+                print(f" API returned status: {status}")
                 if error_message:
                     print(f"   Error: {error_message}")
     
     except httpx.RequestError as e:
-        print(f"❌ Network Error: {e}")
+        print(f" Network Error: {e}")
         print("   Check your internet connection")
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        print(f" Unexpected error: {e}")
         return
     
-    # Test Geocoding API (often used together)
-    print("\n🌍 Testing Geocoding API...")
+    print("\n Testing Geocoding API...")
     
     geocode_url = "https://maps.googleapis.com/maps/api/geocode/json"
     geocode_params = {
@@ -93,18 +91,18 @@ def test_google_places_api() -> None:
             data = response.json()
             
             if data.get("status") == "OK":
-                print("✅ Geocoding API is also working!")
+                print(" Geocoding API is also working!")
                 results = data.get("results", [])
                 if results:
                     location = results[0].get("geometry", {}).get("location", {})
                     print(f"   Coordinates: {location.get('lat')}, {location.get('lng')}")
             elif data.get("status") == "REQUEST_DENIED":
-                print("⚠️  Geocoding API may not be enabled (this is optional)")
+                print(" Geocoding API may not be enabled (this is optional)")
             else:
-                print(f"⚠️  Geocoding returned: {data.get('status')}")
+                print(f" Geocoding returned: {data.get('status')}")
     
     except Exception as e:
-        print(f"⚠️  Could not test Geocoding API: {e}")
+        print(f" Could not test Geocoding API: {e}")
     
     print("\n" + "=" * 60)
     print("Test completed!")

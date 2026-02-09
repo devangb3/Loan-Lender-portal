@@ -8,16 +8,16 @@ from sqlalchemy import pool
 from sqlmodel import SQLModel
 
 from app.core.config import settings
-from app.modules.auth import models as auth_models  # noqa: F401
-from app.modules.borrowers import models as borrower_models  # noqa: F401
-from app.modules.commissions import models as commission_models  # noqa: F401
-from app.modules.deals import models as deal_models  # noqa: F401
-from app.modules.lenders import models as lender_models  # noqa: F401
-from app.modules.notifications import models as notification_models  # noqa: F401
-from app.modules.partners import models as partner_models  # noqa: F401
-from app.modules.pipeline import models as pipeline_models  # noqa: F401
-from app.modules.resources import models as resource_models  # noqa: F401
-from app.modules.substages import models as substage_models  # noqa: F401
+from app.modules.auth import models as auth_models
+from app.modules.borrowers import models as borrower_models
+from app.modules.commissions import models as commission_models
+from app.modules.deals import models as deal_models
+from app.modules.lenders import models as lender_models
+from app.modules.notifications import models as notification_models
+from app.modules.partners import models as partner_models
+from app.modules.pipeline import models as pipeline_models
+from app.modules.resources import models as resource_models
+from app.modules.substages import models as substage_models
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

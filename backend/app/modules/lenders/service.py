@@ -87,7 +87,6 @@ class LenderService:
 
     def _delete_related_records(self, lender_id: UUID) -> None:
         """Handle related records before deleting a lender."""
-        # Set lender_id to None for all deals that reference this lender
         deals = list(self.session.exec(select(Deal).where(Deal.lender_id == lender_id)))
         for deal in deals:
             deal.lender_id = None
@@ -98,9 +97,7 @@ class LenderService:
         if not lender:
             raise NotFoundException("Lender not found")
 
-        # Handle related records first
         self._delete_related_records(lender_id)
 
-        # Now delete the lender itself
         self.repo.delete(lender_id)
         self.session.commit()

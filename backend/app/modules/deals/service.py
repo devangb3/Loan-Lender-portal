@@ -136,7 +136,6 @@ class DealService:
 
     @staticmethod
     def _generate_temporary_password() -> str:
-        # Guarantee uppercase/lowercase/digit characters for policy compliance.
         return f"Tmp{secrets.token_hex(6)}A1"
 
     def list_partner_deals(self, partner: PartnerProfile) -> list[DealListItem]:
