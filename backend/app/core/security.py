@@ -38,14 +38,6 @@ def create_access_token(subject: str) -> str:
     )
 
 
-def create_refresh_token(subject: str) -> str:
-    return create_token(
-        subject=subject,
-        expires_delta=timedelta(days=settings.refresh_token_expire_days),
-        token_type="refresh",
-    )
-
-
 def decode_token(token: str, expected_type: str | None = None) -> dict[str, Any]:
     try:
         payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])

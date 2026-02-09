@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Alert, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle } from "@/components/ui/mui";
 import { fetchAdminDealDetail, fetchAdminDealEvents, deleteDeal, listSubstages, updateDealSubstage } from "../api";
-import { stageTitle } from "../utils";
+import { stageBadgeVariant, stageTitle } from "../utils";
 import { X, Trash2 } from "lucide-react";
 
 function toCurrency(value) {
@@ -103,6 +103,11 @@ export function DealDetailDialog({ open, dealId, onClose, onChanged }) {
     return stageTitle(deal.stage);
   }, [deal]);
 
+  const stageVariant = useMemo(() => {
+    if (!deal?.stage) return "muted";
+    return stageBadgeVariant(deal.stage);
+  }, [deal]);
+
   const formatLabel = (value) => {
     if (!value) return "N/A";
     return stageTitle(String(value));
@@ -168,7 +173,7 @@ export function DealDetailDialog({ open, dealId, onClose, onChanged }) {
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <Chip label={stageLabel} />
+              <Chip label={stageLabel} variant={stageVariant} />
               <button onClick={onClose} className="rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                 <X size={16} />
               </button>

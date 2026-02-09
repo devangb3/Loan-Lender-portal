@@ -1,15 +1,10 @@
+import { BORROWER_DEAL_STAGES } from "@/shared/constants";
+
 export function toCurrency(value) {
     return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
 }
 
-export const BORROWER_STAGE_ORDER = [
-  "submitted",
-  "in_review",
-  "accepted",
-  "in_progress",
-  "closing",
-  "closed",
-];
+export const BORROWER_STAGE_ORDER = [...BORROWER_DEAL_STAGES];
 
 export function stageLabel(stage) {
   return stage.replaceAll("_", " ").replace(/\b\w/g, (match) => match.toUpperCase());

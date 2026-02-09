@@ -16,111 +16,114 @@ import { PartnerDashboardPage } from "../modules/partner/pages/PartnerDashboardP
 import { PartnerDealNewPage } from "../modules/partner/pages/PartnerDealNewPage";
 import { PartnerDealsPage } from "../modules/partner/pages/PartnerDealsPage";
 import { PartnerResourcesPage } from "../modules/resources/pages/PartnerResourcesPage";
+import { ACCOUNT_ACCESS_ROLES, APP_ROUTES, USER_ROLES } from "../shared/constants";
 import { AppShell } from "../shared/ui/AppShell";
 import { RouteGuard } from "./RouteGuard";
 
+const childPath = (absolutePath) => absolutePath.replace(/^\//, "");
+
 export const router = createBrowserRouter([
-  { path: "/", element: <Navigate to="/auth/login" replace /> },
-  { path: "/auth/login", element: <LoginPage /> },
-  { path: "/auth/signup", element: <SignupPage /> },
-  { path: "/auth/forgot-password", element: <ForgotPasswordPage /> },
-  { path: "/auth/reset-password", element: <ResetPasswordPage /> },
+  { path: APP_ROUTES.ROOT, element: <Navigate to={APP_ROUTES.AUTH_LOGIN} replace /> },
+  { path: APP_ROUTES.AUTH_LOGIN, element: <LoginPage /> },
+  { path: APP_ROUTES.AUTH_SIGNUP, element: <SignupPage /> },
+  { path: APP_ROUTES.AUTH_FORGOT_PASSWORD, element: <ForgotPasswordPage /> },
+  { path: APP_ROUTES.AUTH_RESET_PASSWORD, element: <ResetPasswordPage /> },
   {
-    path: "/",
+    path: APP_ROUTES.ROOT,
     element: <AppShell />,
     children: [
       {
-        path: "partner",
+        path: childPath(APP_ROUTES.PARTNER_DASHBOARD),
         element: (
-          <RouteGuard role="partner">
+          <RouteGuard role={USER_ROLES.PARTNER}>
             <PartnerDashboardPage />
           </RouteGuard>
         ),
       },
       {
-        path: "partner/deals",
+        path: childPath(APP_ROUTES.PARTNER_DEALS),
         element: (
-          <RouteGuard role="partner">
+          <RouteGuard role={USER_ROLES.PARTNER}>
             <PartnerDealsPage />
           </RouteGuard>
         ),
       },
       {
-        path: "partner/deals/new",
+        path: childPath(APP_ROUTES.PARTNER_DEALS_NEW),
         element: (
-          <RouteGuard role="partner">
+          <RouteGuard role={USER_ROLES.PARTNER}>
             <PartnerDealNewPage />
           </RouteGuard>
         ),
       },
       {
-        path: "partner/resources",
+        path: childPath(APP_ROUTES.PARTNER_RESOURCES),
         element: (
-          <RouteGuard role="partner">
+          <RouteGuard role={USER_ROLES.PARTNER}>
             <PartnerResourcesPage />
           </RouteGuard>
         ),
       },
       {
-        path: "borrower",
+        path: childPath(APP_ROUTES.BORROWER_DASHBOARD),
         element: (
-          <RouteGuard role="borrower">
+          <RouteGuard role={USER_ROLES.BORROWER}>
             <BorrowerDashboardPage />
           </RouteGuard>
         ),
       },
       {
-        path: "admin/pipeline",
+        path: childPath(APP_ROUTES.ADMIN_PIPELINE),
         element: (
-          <RouteGuard role="admin">
+          <RouteGuard role={USER_ROLES.ADMIN}>
             <AdminPipelinePage />
           </RouteGuard>
         ),
       },
       {
-        path: "admin/pipeline/substages",
+        path: childPath(APP_ROUTES.ADMIN_SUBSTAGES),
         element: (
-          <RouteGuard role="admin">
+          <RouteGuard role={USER_ROLES.ADMIN}>
             <AdminSubstagesPage />
           </RouteGuard>
         ),
       },
       {
-        path: "admin/partners",
+        path: childPath(APP_ROUTES.ADMIN_PARTNERS),
         element: (
-          <RouteGuard role="admin">
+          <RouteGuard role={USER_ROLES.ADMIN}>
             <AdminPartnersPage />
           </RouteGuard>
         ),
       },
       {
-        path: "admin/lenders",
+        path: childPath(APP_ROUTES.ADMIN_LENDERS),
         element: (
-          <RouteGuard role="admin">
+          <RouteGuard role={USER_ROLES.ADMIN}>
             <AdminLendersPage />
           </RouteGuard>
         ),
       },
       {
-        path: "admin/commissions",
+        path: childPath(APP_ROUTES.ADMIN_COMMISSIONS),
         element: (
-          <RouteGuard role="admin">
+          <RouteGuard role={USER_ROLES.ADMIN}>
             <AdminCommissionsPage />
           </RouteGuard>
         ),
       },
       {
-        path: "admin/exports",
+        path: childPath(APP_ROUTES.ADMIN_EXPORTS),
         element: (
-          <RouteGuard role="admin">
+          <RouteGuard role={USER_ROLES.ADMIN}>
             <ExportsPage />
           </RouteGuard>
         ),
       },
       {
-        path: "account/password",
+        path: childPath(APP_ROUTES.ACCOUNT_PASSWORD),
         element: (
-          <RouteGuard roles={["admin", "partner", "borrower"]}>
+          <RouteGuard roles={ACCOUNT_ACCESS_ROLES}>
             <AccountPasswordPage />
           </RouteGuard>
         ),

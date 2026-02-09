@@ -1,6 +1,7 @@
 import { Alert, Button, Stack, TextField, Typography } from "@/components/ui/mui";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
+import { APP_ROUTES } from "@/shared/constants";
 import { Link } from "react-router-dom";
 
 import { forgotPassword } from "../api";
@@ -53,7 +54,7 @@ export function ForgotPasswordPage() {
 
               <Typography variant="body2" className="text-center">
                 Back to{" "}
-                <Link to="/auth/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+                <Link to={APP_ROUTES.AUTH_LOGIN} className="font-semibold text-primary underline-offset-4 hover:underline">
                   Login
                 </Link>
               </Typography>

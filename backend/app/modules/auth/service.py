@@ -1,5 +1,4 @@
 from __future__ import annotations
-from datetime import UTC, datetime
 from uuid import uuid4
 
 from sqlmodel import Session
@@ -10,7 +9,6 @@ from app.common.exceptions import BadRequestException, ForbiddenException
 from app.core.config import settings
 from app.core.security import (
     create_access_token,
-    create_refresh_token,
     get_password_hash,
     verify_password,
 )
@@ -65,7 +63,7 @@ class AuthService:
         self.session.refresh(user)
         return user
 
-    def login(self, payload: LoginRequest) -> tuple[User, str, str]:
+    def login(self, payload: LoginRequest) -> tuple[User, str]:
         user = self.repo.get_user_by_email(payload.email)
         if not user or not verify_password(payload.password, user.hashed_password):
             raise ForbiddenException("Invalid email or password")
@@ -81,8 +79,7 @@ class AuthService:
                 raise ForbiddenException("Partner account pending approval/activation")
 
         access = create_access_token(str(user.id))
-        refresh = create_refresh_token(str(user.id))
-        return user, access, refresh
+        return user, access
 
     def forgot_password(self, payload: ForgotPasswordRequest) -> None:
         user = self.repo.get_user_by_email(payload.email)
@@ -120,7 +117,6 @@ class AuthService:
 
         user.hashed_password = get_password_hash(payload.new_password)
         user.must_reset_password = False
-        user.updated_at = datetime.now(UTC)
         self.repo.save(user)
         self.repo.consume_token(token)
         self.session.commit()
@@ -135,6 +131,5 @@ class AuthService:
 
         user.hashed_password = get_password_hash(payload.new_password)
         user.must_reset_password = False
-        user.updated_at = datetime.now(UTC)
         self.repo.save(user)
         self.session.commit()

@@ -7,6 +7,7 @@ import { KanbanColumn } from "../components/KanbanColumn";
 import { DealCardOverlay } from "../components/DraggableDealCard";
 import { useKanbanData } from "../hooks";
 import { STAGE_ORDER, stageTitle } from "../utils";
+import { APP_ROUTES } from "@/shared/constants";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { Link } from "react-router-dom";
 import { Settings } from "lucide-react";
@@ -53,7 +54,7 @@ export function AdminPipelinePage() {
           subtitle={`${totalDeals} deal${totalDeals !== 1 ? "s" : ""} across ${STAGE_ORDER.length} stages`}
           actions={
             <Stack direction="row" spacing={1}>
-              <Link to="/admin/pipeline/substages">
+              <Link to={APP_ROUTES.ADMIN_SUBSTAGES}>
                 <Button variant="outlined" size="small" className="gap-1.5">
                   <Settings size={14} />
                   Sub-Stages

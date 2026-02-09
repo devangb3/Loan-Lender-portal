@@ -38,7 +38,7 @@ def partner_signup(payload: PartnerSignupRequest, session: Session = Depends(get
 @router.post("/login", response_model=AuthResponse)
 def login(payload: LoginRequest, response: Response, session: Session = Depends(get_session)) -> AuthResponse:
     service = AuthService(session)
-    user, access, refresh = service.login(payload)
+    user, access = service.login(payload)
 
     secure = settings.env != "development"
     response.set_cookie(
@@ -49,15 +49,6 @@ def login(payload: LoginRequest, response: Response, session: Session = Depends(
         samesite="lax",
         max_age=settings.access_token_expire_minutes * 60,
     )
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh,
-        httponly=True,
-        secure=secure,
-        samesite="lax",
-        max_age=settings.refresh_token_expire_days * 86400,
-    )
-
     return AuthResponse(
         user=UserResponse(
             id=str(user.id),
@@ -72,7 +63,6 @@ def login(payload: LoginRequest, response: Response, session: Session = Depends(
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 def logout(response: Response):
     response.delete_cookie("access_token")
-    response.delete_cookie("refresh_token")
 
 
 @router.get("/me", response_model=AuthResponse)

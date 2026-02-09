@@ -5,6 +5,7 @@ from uuid import UUID
 from sqlmodel import Session, select
 
 from app.modules.commissions.models import Commission
+from app.modules.deals.models import Deal
 
 
 class CommissionRepository:
@@ -28,6 +29,18 @@ class CommissionRepository:
 
     def list_all(self) -> list[Commission]:
         stmt = select(Commission)
+        return list(self.session.exec(stmt))
+
+    def get_with_deal_address(self, commission_id: UUID) -> tuple[Commission, str | None] | None:
+        stmt = (
+            select(Commission, Deal.property_address)
+            .join(Deal, Deal.id == Commission.deal_id, isouter=True)
+            .where(Commission.id == commission_id)
+        )
+        return self.session.exec(stmt).first()
+
+    def list_with_deal_address(self) -> list[tuple[Commission, str | None]]:
+        stmt = select(Commission, Deal.property_address).join(Deal, Deal.id == Commission.deal_id, isouter=True)
         return list(self.session.exec(stmt))
 
     def save(self, commission: Commission) -> Commission:

@@ -1,5 +1,6 @@
 import { Alert, Button, Stack, TextField, Typography } from "@/components/ui/mui";
 import { Card } from "@/components/ui/card";
+import { APP_ROUTES } from "@/shared/constants";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../api";
@@ -39,7 +40,7 @@ export function LoginForm() {
         <TextField label="Password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" required />
 
         <div className="text-right">
-          <Link to="/auth/forgot-password" className="text-sm font-semibold text-primary underline-offset-4 hover:underline">
+          <Link to={APP_ROUTES.AUTH_FORGOT_PASSWORD} className="text-sm font-semibold text-primary underline-offset-4 hover:underline">
             Forgot password?
           </Link>
         </div>
@@ -48,7 +49,7 @@ export function LoginForm() {
 
         <Typography variant="body2" className="text-center">
           Don&apos;t have an account?{" "}
-          <Link to="/auth/signup" className="font-semibold text-primary underline-offset-4 hover:underline">
+          <Link to={APP_ROUTES.AUTH_SIGNUP} className="font-semibold text-primary underline-offset-4 hover:underline">
             Sign up
           </Link>
         </Typography>

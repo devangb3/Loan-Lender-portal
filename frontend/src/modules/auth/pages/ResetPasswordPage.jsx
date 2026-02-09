@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
+import { APP_ROUTES } from "@/shared/constants";
 import { resetPassword } from "../api";
 
 export function ResetPasswordPage() {
@@ -30,7 +31,7 @@ export function ResetPasswordPage() {
 
     try {
       await resetPassword({ token, new_password: password });
-      navigate("/auth/login", { replace: true });
+      navigate(APP_ROUTES.AUTH_LOGIN, { replace: true });
     } catch {
       setError("Reset failed. The link may be expired or invalid.");
     }
@@ -71,7 +72,7 @@ export function ResetPasswordPage() {
 
             <Typography variant="body2" className="text-center">
               Back to{" "}
-              <Link to="/auth/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+              <Link to={APP_ROUTES.AUTH_LOGIN} className="font-semibold text-primary underline-offset-4 hover:underline">
                 Login
               </Link>
             </Typography>

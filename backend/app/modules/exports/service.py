@@ -13,7 +13,16 @@ class ExportService:
         self.repo = ExportRepository(session)
 
     def export_deals(self) -> StreamingResponse:
-        rows = [
+        headers = [
+            "id",
+            "partner_id",
+            "borrower_id",
+            "property_address",
+            "loan_amount",
+            "stage",
+            "transaction_type",
+        ]
+        rows = (
             {
                 "id": str(d.id),
                 "partner_id": str(d.partner_id),
@@ -24,11 +33,12 @@ class ExportService:
                 "transaction_type": d.transaction_type.value,
             }
             for d in self.repo.deals()
-        ]
-        return to_csv_response("deals.csv", rows)
+        )
+        return to_csv_response("deals.csv", headers=headers, rows=rows)
 
     def export_partners(self) -> StreamingResponse:
-        rows = [
+        headers = ["id", "user_id", "company", "tier", "is_approved", "is_active", "commission_goal"]
+        rows = (
             {
                 "id": str(p.id),
                 "user_id": str(p.user_id),
@@ -39,11 +49,12 @@ class ExportService:
                 "commission_goal": p.commission_goal,
             }
             for p in self.repo.partners()
-        ]
-        return to_csv_response("partners.csv", rows)
+        )
+        return to_csv_response("partners.csv", headers=headers, rows=rows)
 
     def export_borrowers(self) -> StreamingResponse:
-        rows = [
+        headers = ["id", "user_id", "email", "phone_number"]
+        rows = (
             {
                 "id": str(b.id),
                 "user_id": str(b.user_id),
@@ -51,11 +62,12 @@ class ExportService:
                 "phone_number": b.phone_number,
             }
             for b in self.repo.borrowers()
-        ]
-        return to_csv_response("borrowers.csv", rows)
+        )
+        return to_csv_response("borrowers.csv", headers=headers, rows=rows)
 
     def export_commissions(self) -> StreamingResponse:
-        rows = [
+        headers = ["id", "deal_id", "partner_id", "amount", "status"]
+        rows = (
             {
                 "id": str(c.id),
                 "deal_id": str(c.deal_id),
@@ -64,5 +76,5 @@ class ExportService:
                 "status": c.status.value,
             }
             for c in self.repo.commissions()
-        ]
-        return to_csv_response("commissions.csv", rows)
+        )
+        return to_csv_response("commissions.csv", headers=headers, rows=rows)

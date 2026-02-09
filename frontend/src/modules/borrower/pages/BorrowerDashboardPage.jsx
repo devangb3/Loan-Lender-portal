@@ -1,4 +1,5 @@
 import { Alert, Button, Stack } from "@/components/ui/mui";
+import { APP_ROUTES } from "@/shared/constants";
 import { BorrowerDealsList } from "../components/BorrowerDealsList";
 import { useBorrowerData } from "../hooks";
 import { PageHeader } from "@/shared/ui/PageHeader";
@@ -20,7 +21,7 @@ export function BorrowerDashboardPage() {
         <Alert severity="warning">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span>You are using a temporary password. Reset it to secure your account.</span>
-            <Button component={Link} to="/account/password" variant="outlined" size="small">
+            <Button component={Link} to={APP_ROUTES.ACCOUNT_PASSWORD} variant="outlined" size="small">
               Reset Password
             </Button>
           </div>

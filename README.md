@@ -3,7 +3,7 @@
 A full-stack implementation of the **AI Engineering Challenge v4** using:
 
 - Backend: `FastAPI + SQLModel + Alembic + PostgreSQL`
-- Frontend: `React + Vite + MUI + dnd-kit`
+- Frontend: `React + Vite + Tailwind + MUI-compatible internal UI wrapper + dnd-kit`
 - Deployment target: `EC2 (backend)` + `Vercel (frontend)`
 
 ## What is Implemented
@@ -14,7 +14,7 @@ A full-stack implementation of the **AI Engineering Challenge v4** using:
 - `admin`: kanban pipeline, stage/sub-stage actions, partner management, lender import/filter, commission lifecycle, CSV exports
 
 ### Core Flows
-- Partner submits deal (optional file upload)
+- Partner submits deal
 - Borrower account auto-created/reused by email with temporary password email and reset reminder
 - Partner account signup remains pending until admin approval; approval triggers login email
 - Password reset uses secure email links for all roles, plus authenticated password change
@@ -47,6 +47,8 @@ source ../.venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 ```
+
+Python version for local/dev container parity: `3.12.x`
 
 Run API:
 

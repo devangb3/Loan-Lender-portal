@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from uuid import UUID
+
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 
-from app.common.exceptions import NotFoundException
 from app.core.db import get_session
 from app.modules.borrowers.deps import get_current_borrower_profile
-from app.modules.borrowers.schemas import BorrowerDashboardResponse
+from app.modules.borrowers.schemas import BorrowerDashboardResponse, BorrowerDealItem
 from app.modules.borrowers.service import BorrowerService
 
 router = APIRouter()
@@ -28,14 +29,10 @@ def borrower_deals(
     return BorrowerService(session).dashboard(borrower)
 
 
-@router.get("/borrower/deals/{deal_id}")
+@router.get("/borrower/deals/{deal_id}", response_model=BorrowerDealItem)
 def borrower_deal_detail(
-    deal_id: str,
+    deal_id: UUID,
     borrower=Depends(get_current_borrower_profile),
     session: Session = Depends(get_session),
-) -> dict[str, object]:
-    dashboard = BorrowerService(session).dashboard(borrower)
-    for deal in dashboard.deals:
-        if deal.id == deal_id:
-            return deal.model_dump()
-    raise NotFoundException("Deal not found")
+) -> BorrowerDealItem:
+    return BorrowerService(session).get_deal_detail(borrower, deal_id)

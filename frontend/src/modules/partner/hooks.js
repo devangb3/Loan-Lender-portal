@@ -1,83 +1,52 @@
-import { useEffect, useState } from "react";
+import { useCallback } from "react";
+import { useAsyncResource } from "@/shared/hooks/useAsyncResource";
 import { fetchCommissionSummary, fetchPartnerDashboard, fetchPartnerDeals } from "./api";
 
 export function usePartnerDashboard() {
-  const [dashboard, setDashboard] = useState(null);
-  const [commissionSummary, setCommissionSummary] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const refresh = async () => {
-    setLoading(true);
-    try {
-      const [dashboardData, commissionData] = await Promise.all([
-        fetchPartnerDashboard(),
-        fetchCommissionSummary(),
-      ]);
-      setDashboard(dashboardData);
-      setCommissionSummary(commissionData);
-    } catch {
-      // Error feedback is handled globally by the API client interceptor.
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void refresh();
+  const loader = useCallback(async () => {
+    const [dashboard, commissionSummary] = await Promise.all([
+      fetchPartnerDashboard(),
+      fetchCommissionSummary(),
+    ]);
+    return { dashboard, commissionSummary };
   }, []);
 
-  return { dashboard, commissionSummary, loading, refresh };
+  const { data, loading, refresh } = useAsyncResource(loader, {
+    dashboard: null,
+    commissionSummary: null,
+  });
+
+  return { dashboard: data.dashboard, commissionSummary: data.commissionSummary, loading, refresh };
 }
 
 export function usePartnerDeals() {
-  const [deals, setDeals] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const refresh = async () => {
-    setLoading(true);
-    try {
-      setDeals(await fetchPartnerDeals());
-    } catch {
-      // Error feedback is handled globally by the API client interceptor.
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void refresh();
-  }, []);
+  const loader = useCallback(() => fetchPartnerDeals(), []);
+  const { data: deals, loading, refresh } = useAsyncResource(loader, []);
 
   return { deals, loading, refresh };
 }
 
 export function usePartnerData() {
-  const [dashboard, setDashboard] = useState(null);
-  const [commissionSummary, setCommissionSummary] = useState(null);
-  const [deals, setDeals] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const refresh = async () => {
-    setLoading(true);
-    try {
-      const [dashboardData, dealsData, commissionData] = await Promise.all([
-        fetchPartnerDashboard(),
-        fetchPartnerDeals(),
-        fetchCommissionSummary(),
-      ]);
-      setDashboard(dashboardData);
-      setDeals(dealsData);
-      setCommissionSummary(commissionData);
-    } catch {
-      // Error feedback is handled globally by the API client interceptor.
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void refresh();
+  const loader = useCallback(async () => {
+    const [dashboard, deals, commissionSummary] = await Promise.all([
+      fetchPartnerDashboard(),
+      fetchPartnerDeals(),
+      fetchCommissionSummary(),
+    ]);
+    return { dashboard, deals, commissionSummary };
   }, []);
 
-  return { dashboard, commissionSummary, deals, loading, refresh };
+  const { data, loading, refresh } = useAsyncResource(loader, {
+    dashboard: null,
+    commissionSummary: null,
+    deals: [],
+  });
+
+  return {
+    dashboard: data.dashboard,
+    commissionSummary: data.commissionSummary,
+    deals: data.deals,
+    loading,
+    refresh,
+  };
 }

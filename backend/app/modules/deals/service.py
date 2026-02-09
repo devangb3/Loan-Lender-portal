@@ -198,7 +198,6 @@ class DealService:
         if not deal:
             raise NotFoundException("Deal not found")
         deal.internal_notes = notes
-        deal.updated_at = datetime.now(UTC)
         self.repo.save(deal)
         self.session.commit()
         self.session.refresh(deal)

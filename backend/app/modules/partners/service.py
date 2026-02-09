@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
+from sqlalchemy import case, func
 from sqlmodel import Session, select
 
 from app.common.base import CommissionStatus, DealStage
@@ -42,15 +43,51 @@ class PartnerService:
 
     def list_for_admin(self) -> list[PartnerAdminMetricsResponse]:
         partners = self.repo.list_all()
+
+        deal_metrics_stmt = (
+            select(
+                Deal.partner_id,
+                func.count(Deal.id),
+                func.sum(case((Deal.stage == DealStage.CLOSED, 1), else_=0)),
+                func.coalesce(func.sum(Deal.loan_amount), 0.0),
+            )
+            .group_by(Deal.partner_id)
+        )
+        deal_metrics_by_partner = {
+            partner_id: {
+                "deal_count": int(deal_count or 0),
+                "closed_count": int(closed_count or 0),
+                "total_volume": float(total_volume or 0),
+            }
+            for partner_id, deal_count, closed_count, total_volume in self.session.exec(deal_metrics_stmt)
+        }
+
+        commission_metrics_stmt = (
+            select(
+                Commission.partner_id,
+                func.coalesce(
+                    func.sum(case((Commission.status != CommissionStatus.PAID, Commission.amount), else_=0.0)),
+                    0.0,
+                ),
+            )
+            .group_by(Commission.partner_id)
+        )
+        commission_owed_by_partner = {
+            partner_id: float(owed or 0)
+            for partner_id, owed in self.session.exec(commission_metrics_stmt)
+        }
+
         out: list[PartnerAdminMetricsResponse] = []
         for partner in partners:
-            deals = list(self.session.exec(select(Deal).where(Deal.partner_id == partner.id)))
-            commissions = list(self.session.exec(select(Commission).where(Commission.partner_id == partner.id)))
-            deal_count = len(deals)
-            closed_count = len([d for d in deals if d.stage == DealStage.CLOSED])
+            metrics = deal_metrics_by_partner.get(
+                partner.id,
+                {"deal_count": 0, "closed_count": 0, "total_volume": 0.0},
+            )
+            deal_count = metrics["deal_count"]
+            closed_count = metrics["closed_count"]
             conversion = (closed_count / deal_count) if deal_count else 0
-            total_volume = sum(d.loan_amount for d in deals)
-            owed = sum(c.amount for c in commissions if c.status != CommissionStatus.PAID)
+            total_volume = metrics["total_volume"]
+            owed = commission_owed_by_partner.get(partner.id, 0.0)
 
             out.append(
                 PartnerAdminMetricsResponse(

@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import { Navigate } from "react-router-dom";
 
 import { CircularProgress, Stack } from "@/components/ui/mui";
+import { APP_ROUTES } from "@/shared/constants";
 import { useAuthContext } from "./AuthContext";
 
 export function RouteGuard({ role, roles, children }) {
@@ -16,15 +17,15 @@ export function RouteGuard({ role, roles, children }) {
   }
 
   if (!user) {
-    return <Navigate to="/auth/login" replace />;
+    return <Navigate to={APP_ROUTES.AUTH_LOGIN} replace />;
   }
 
   if (role && user.role !== role) {
-    return <Navigate to="/auth/login" replace />;
+    return <Navigate to={APP_ROUTES.AUTH_LOGIN} replace />;
   }
 
   if (roles && !roles.includes(user.role)) {
-    return <Navigate to="/auth/login" replace />;
+    return <Navigate to={APP_ROUTES.AUTH_LOGIN} replace />;
   }
 
   return children;
