@@ -18,6 +18,7 @@ from app.modules.deals.models import Deal
 from app.modules.deals.repository import DealRepository
 from app.modules.deals.schemas import DealDetailResponse, DealListItem, DealSubmitRequest
 from app.modules.deals.validators import validate_loan_amount
+from app.modules.lenders.models import Lender
 from app.modules.notifications.service import NotificationService
 from app.modules.partners.models import PartnerProfile
 from app.modules.pipeline.models import DealStageEvent
@@ -30,6 +31,18 @@ class DealService:
         self.repo = DealRepository(session)
         self.borrowers = BorrowerRepository(session)
         self.notifications = NotificationService(session)
+        self._lender_name_cache: dict[UUID, str | None] = {}
+
+    def _resolve_lender_name(self, lender_id: UUID | None) -> str | None:
+        if lender_id is None:
+            return None
+        if lender_id in self._lender_name_cache:
+            return self._lender_name_cache[lender_id]
+
+        lender = self.session.get(Lender, lender_id)
+        lender_name = lender.lender_name if lender else None
+        self._lender_name_cache[lender_id] = lender_name
+        return lender_name
 
     def submit_deal(
         self,
@@ -136,6 +149,7 @@ class DealService:
                 stage=d.stage,
                 substage_id=str(d.substage_id) if d.substage_id else None,
                 lender_id=str(d.lender_id) if d.lender_id else None,
+                lender_name=self._resolve_lender_name(d.lender_id),
                 created_at=d.created_at,
             )
             for d in deals
@@ -151,6 +165,7 @@ class DealService:
                 stage=d.stage,
                 substage_id=str(d.substage_id) if d.substage_id else None,
                 lender_id=str(d.lender_id) if d.lender_id else None,
+                lender_name=self._resolve_lender_name(d.lender_id),
                 created_at=d.created_at,
             )
             for d in deals
@@ -187,6 +202,7 @@ class DealService:
             stage=deal.stage,
             substage_id=str(deal.substage_id) if deal.substage_id else None,
             lender_id=str(deal.lender_id) if deal.lender_id else None,
+            lender_name=self._resolve_lender_name(deal.lender_id),
             internal_notes=deal.internal_notes,
             created_at=deal.created_at,
             updated_at=deal.updated_at,

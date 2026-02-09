@@ -221,7 +221,7 @@ export function DealDetailDialog({ open, dealId, onClose, onChanged }) {
                     <Field label="Transaction" value={formatLabel(deal.transaction_type)} />
                     <Field label="Days in Stage" value={String(deal.days_in_current_stage)} />
                     <Field label="Sub-stage" value={currentSubstageName || "None"} />
-                    <Field label="Lender" value={deal.lender_id || "None"} />
+                    <Field label="Lender" value={deal.lender_name || deal.lender_id || "None"} />
                   </div>
                 </Section>
 
