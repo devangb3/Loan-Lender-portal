@@ -7,6 +7,10 @@ const AUTH_DEBUG_PREFIX = "[AUTH_DEBUG]";
 export const apiClient = axios.create({
   baseURL: apiBase,
   withCredentials: true,
+  headers: {
+    Accept: "application/json",
+    "ngrok-skip-browser-warning": "true",
+  },
 });
 
 function isAuthRequest(url) {
@@ -51,6 +55,8 @@ apiClient.interceptors.response.use(
         status: response.status,
         method: (response.config?.method || "get").toUpperCase(),
         url: response.config?.url,
+        contentType: response.headers?.["content-type"],
+        dataType: typeof response.data,
         currentPath: currentPath(),
       });
     }
@@ -75,6 +81,8 @@ apiClient.interceptors.response.use(
         status: error.response?.status,
         method: (error.config?.method || "get").toUpperCase(),
         url: error.config?.url,
+        contentType: error.response?.headers?.["content-type"],
+        dataType: typeof error.response?.data,
         data: error.response?.data,
         currentPath: currentPath(),
       });
