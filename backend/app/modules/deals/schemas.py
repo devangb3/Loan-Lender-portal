@@ -8,13 +8,13 @@ from app.common.base import DealStage, PartnerTier, PropertyType, TransactionTyp
 
 
 class DealSubmitRequest(BaseModel):
-    property_type: PropertyType
+    property_type: PropertyType = PropertyType.MULTIFAMILY
     property_address: str
     loan_amount: float
-    transaction_type: TransactionType
+    transaction_type: TransactionType = TransactionType.PURCHASE
     borrower_name: str
     borrower_email: EmailStr
-    borrower_phone: str
+    borrower_phone: str = ""
 
 
 class DealListItem(BaseModel):
@@ -37,7 +37,7 @@ class PartnerDealDetailResponse(BaseModel):
     transaction_type: TransactionType
     borrower_name: str
     borrower_email: EmailStr
-    borrower_phone: str
+    borrower_phone: str | None
     stage: DealStage
     substage_id: str | None
     substage_name: str | None = None

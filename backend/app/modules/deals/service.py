@@ -92,7 +92,7 @@ class DealService:
                     borrower_profile = BorrowerProfile(
                         user_id=borrower_user.id,
                         email=borrower_email,
-                        phone_number=payload.borrower_phone,
+                        phone_number=payload.borrower_phone or "",
                     )
                     self.borrowers.save(borrower_profile)
             else:
@@ -112,7 +112,7 @@ class DealService:
                 borrower_profile = BorrowerProfile(
                     user_id=borrower_user.id,
                     email=borrower_email,
-                    phone_number=payload.borrower_phone,
+                    phone_number=payload.borrower_phone or "",
                 )
                 self.borrowers.save(borrower_profile)
 
@@ -132,7 +132,7 @@ class DealService:
         if borrower_profile is None:
             raise BadRequestException("Unable to resolve borrower profile")
 
-        if borrower_profile.phone_number != payload.borrower_phone:
+        if payload.borrower_phone and borrower_profile.phone_number != payload.borrower_phone:
             borrower_profile.phone_number = payload.borrower_phone
             self.borrowers.save(borrower_profile)
 
@@ -145,7 +145,7 @@ class DealService:
             transaction_type=payload.transaction_type,
             borrower_name=payload.borrower_name,
             borrower_email=borrower_email,
-            borrower_phone=payload.borrower_phone,
+            borrower_phone=payload.borrower_phone or "",
             stage=DealStage.SUBMITTED,
             stage_changed_at=datetime.now(UTC),
         )

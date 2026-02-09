@@ -23,7 +23,7 @@ class Deal(UUIDTimestampModel, table=True):
 
     borrower_name: str
     borrower_email: str
-    borrower_phone: str
+    borrower_phone: str | None = None
 
     stage: DealStage = Field(default=DealStage.SUBMITTED, index=True)
     stage_changed_at: datetime = Field(default_factory=lambda: datetime.now(UTC), nullable=False)

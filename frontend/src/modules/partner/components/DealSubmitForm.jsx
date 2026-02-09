@@ -76,7 +76,7 @@ export function DealSubmitForm({ onSubmitted }) {
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }}>
-            <TextField name="borrower_phone" label="Borrower Phone" fullWidth required />
+            <TextField name="borrower_phone" label="Borrower Phone (optional)" fullWidth />
           </Grid>
 
           <Grid size={{ xs: 12 }}>

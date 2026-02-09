@@ -24,7 +24,7 @@ async def partner_submit_deal(
     transaction_type: TransactionType = Form(...),
     borrower_name: str = Form(...),
     borrower_email: str = Form(...),
-    borrower_phone: str = Form(...),
+    borrower_phone: str = Form(""),
     partner=Depends(get_current_partner_profile),
     session: Session = Depends(get_session),
 ) -> PartnerDealDetailResponse:
