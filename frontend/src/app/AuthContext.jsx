@@ -6,6 +6,20 @@ import { apiClient } from "../shared/api/client";
 const AuthContext = createContext(undefined);
 const AUTH_DEBUG_PREFIX = "[AUTH_DEBUG]";
 
+function extractAuthUser(data) {
+  if (!data || typeof data !== "object") return null;
+
+  if (data.user && typeof data.user === "object") {
+    return data.user;
+  }
+
+  if (data.email && data.role) {
+    return data;
+  }
+
+  return null;
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -17,11 +31,20 @@ export function AuthProvider({ children }) {
       const response = await apiClient.get("/auth/me", {
         feedback: { error: false },
       });
-      setUser(response.data.user);
+      const nextUser = extractAuthUser(response.data);
+      if (!nextUser) {
+        console.warn(`${AUTH_DEBUG_PREFIX} refreshUser:malformed_payload`, {
+          source,
+          payload: response.data,
+        });
+        throw new Error("Malformed /auth/me response payload");
+      }
+      setUser(nextUser);
       console.log(`${AUTH_DEBUG_PREFIX} refreshUser:success`, {
         source,
-        role: response.data?.user?.role,
-        email: response.data?.user?.email,
+        role: nextUser?.role,
+        email: nextUser?.email,
+        payloadKeys: Object.keys(response.data || {}),
       });
     } catch (error) {
       if (!preserveUserOnError) {
@@ -32,6 +55,7 @@ export function AuthProvider({ children }) {
         preserveUserOnError,
         status: error?.response?.status,
         data: error?.response?.data,
+        message: error?.message,
       });
     } finally {
       setLoading(false);

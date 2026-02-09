@@ -9,6 +9,13 @@ import { homeRouteForRole } from "../utils";
 
 const AUTH_DEBUG_PREFIX = "[AUTH_DEBUG]";
 
+function extractAuthUser(data) {
+  if (!data || typeof data !== "object") return null;
+  if (data.user && typeof data.user === "object") return data.user;
+  if (data.email && data.role) return data;
+  return null;
+}
+
 export function LoginForm() {
   const navigate = useNavigate();
   const { refreshUser, setAuthenticatedUser } = useAuth();
@@ -22,12 +29,17 @@ export function LoginForm() {
     console.log(`${AUTH_DEBUG_PREFIX} login:submit`, { email });
     try {
       const response = await login({ email, password });
+      const nextUser = extractAuthUser(response);
+      if (!nextUser) {
+        throw new Error("Malformed /auth/login response payload");
+      }
       console.log(`${AUTH_DEBUG_PREFIX} login:success`, {
-        role: response?.user?.role,
-        email: response?.user?.email,
+        role: nextUser?.role,
+        email: nextUser?.email,
+        payloadKeys: Object.keys(response || {}),
       });
-      setAuthenticatedUser(response.user);
-      navigate(homeRouteForRole(response.user.role), { replace: true });
+      setAuthenticatedUser(nextUser);
+      navigate(homeRouteForRole(nextUser.role), { replace: true });
       window.setTimeout(() => {
         void refreshUser({ source: "post_login_verify", preserveUserOnError: true });
       }, 1200);
