@@ -9,7 +9,7 @@ import { homeRouteForRole } from "../utils";
 
 export function LoginForm() {
   const navigate = useNavigate();
-  const { refreshUser } = useAuth();
+  const { refreshUser, setAuthenticatedUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -19,8 +19,11 @@ export function LoginForm() {
     setError(null);
     try {
       const response = await login({ email, password });
-      await refreshUser();
-      navigate(homeRouteForRole(response.user.role));
+      setAuthenticatedUser(response.user);
+      navigate(homeRouteForRole(response.user.role), { replace: true });
+      window.setTimeout(() => {
+        void refreshUser();
+      }, 300);
     } catch {
       setError("Login failed. Check credentials or account approval status.");
     }

@@ -32,6 +32,11 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const setAuthenticatedUser = (nextUser) => {
+    setUser(nextUser);
+    setLoading(false);
+  };
+
   useEffect(() => {
     void refreshUser();
   }, []);
@@ -42,6 +47,7 @@ export function AuthProvider({ children }) {
       loading,
       refreshUser,
       logout,
+      setAuthenticatedUser,
     }),
     [user, loading],
   );
