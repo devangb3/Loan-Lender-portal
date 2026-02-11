@@ -55,8 +55,6 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Python version for local/dev container parity: `3.12.x`
-
 Run API:
 
 ```bash
