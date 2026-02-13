@@ -45,8 +45,8 @@ export function LenderImportForm({ onImported }) {
         {error && <Alert severity="error">{error}</Alert>}
 
         <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-dashed border-border p-4 transition-colors hover:border-primary/50 hover:bg-muted/30">
-          <div className="rounded-md bg-muted p-2">
-            <Upload size={20} className="text-muted-foreground" />
+          <div className="rounded-lg bg-primary/10 p-2">
+            <Upload size={20} className="text-primary" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium">{file ? file.name : "Choose a CSV file"}</p>

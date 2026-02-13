@@ -32,7 +32,7 @@ export function BorrowerDealsList({ deals }) {
             <span>Referred by {deal.referring_partner_name ?? "Partner"}</span>
           </div>
 
-          <div className="rounded-md border border-border/70 bg-background/60 p-3">
+          <div className="rounded-md border border-border/50 bg-muted/30 p-3">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Timeline</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {BORROWER_STAGE_ORDER.map((stage) => {

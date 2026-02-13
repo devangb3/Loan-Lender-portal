@@ -17,6 +17,14 @@ function formatDateTime(value) {
   return new Date(value).toLocaleString();
 }
 
+function eventLabel(event) {
+  if (!event) return "";
+  if (event.from_stage && event.from_stage !== event.to_stage) {
+    return `${stageLabel(event.from_stage)} -> ${stageLabel(event.to_stage)}`;
+  }
+  return stageLabel(event.to_stage);
+}
+
 function Field({ label, value }) {
   return (
     <div className="flex items-baseline justify-between gap-2 text-xs">
@@ -33,6 +41,17 @@ export function PartnerDealDetailPage() {
   const filteredEvents = useMemo(() => {
     const timeline = Array.isArray(events) ? events : [];
     return timeline.filter((event) => !event?.from_stage || event.from_stage !== event.to_stage);
+  }, [events]);
+
+  const declineReason = useMemo(() => {
+    const timeline = Array.isArray(events) ? events : [];
+    for (let index = timeline.length - 1; index >= 0; index -= 1) {
+      const event = timeline[index];
+      if (event?.to_stage === "declined" && typeof event.reason === "string" && event.reason.trim()) {
+        return event.reason.trim();
+      }
+    }
+    return null;
   }, [events]);
 
   const stageVariant = deal?.stage ? (DEAL_STAGE_BADGE_VARIANTS[deal.stage] || "muted") : "muted";
@@ -97,11 +116,15 @@ export function PartnerDealDetailPage() {
             {filteredEvents.length > 0 ? (
               <div className="mt-3 space-y-2">
                 {filteredEvents.map((event) => (
-                  <div key={event.id} className="flex items-baseline justify-between gap-3 text-xs">
-                    <span className="font-medium text-foreground">
-                      {event.from_stage ? `${stageLabel(event.from_stage)} → ` : ""}
-                      {stageLabel(event.to_stage)}
-                    </span>
+                  <div key={event.id} className="flex items-start justify-between gap-3 border-l-2 border-primary/20 py-1 pl-3 text-xs">
+                    <div className="min-w-0">
+                      <span className="font-medium text-foreground">{eventLabel(event)}</span>
+                      {event.reason ? (
+                        <p className="mt-0.5 truncate text-muted-foreground" title={event.reason}>
+                          Reason: {event.reason}
+                        </p>
+                      ) : null}
+                    </div>
                     <span className="shrink-0 text-muted-foreground">{formatDateTime(event.created_at)}</span>
                   </div>
                 ))}
@@ -117,9 +140,14 @@ export function PartnerDealDetailPage() {
               <span>Last update: {formatDateTime(deal.updated_at)}</span>
             </div>
           </Card>
+
+          {deal.stage === "declined" ? (
+            <Alert severity="warning">
+              {declineReason ? `Rejection reason: ${declineReason}` : "This deal was declined."}
+            </Alert>
+          ) : null}
         </>
       ) : null}
     </Stack>
   );
 }
-

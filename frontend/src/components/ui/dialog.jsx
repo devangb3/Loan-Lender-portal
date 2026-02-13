@@ -20,7 +20,7 @@ function Dialog({ open, children, onOpenChange }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/45 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onOpenChange?.(false);
       }}
@@ -31,7 +31,7 @@ function Dialog({ open, children, onOpenChange }) {
 }
 
 const DialogContent = React.forwardRef(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("editorial-shell w-full max-w-lg rounded-lg p-6", className)} {...props} />
+  <div ref={ref} className={cn("glass-card w-full max-w-lg rounded-lg p-6 animate-scale-in", className)} {...props} />
 ));
 DialogContent.displayName = "DialogContent";
 

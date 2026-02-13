@@ -5,14 +5,14 @@ import { pushFeedback as broadcastFeedback, subscribeFeedback } from "./store";
 
 function toneClasses(type) {
   if (type === "success") {
-    return "border-emerald-500/50 bg-emerald-50 text-emerald-900";
+    return "border-l-emerald-400 border-emerald-400/30 bg-card/90 text-emerald-400";
   }
 
   if (type === "error") {
-    return "border-destructive/60 bg-destructive/10 text-destructive";
+    return "border-l-destructive border-destructive/30 bg-card/90 text-destructive";
   }
 
-  return "border-border bg-card text-foreground";
+  return "border-l-primary border-border bg-card/90 text-foreground";
 }
 
 export function FeedbackProvider({ children }) {
@@ -62,12 +62,12 @@ export function FeedbackProvider({ children }) {
       <FeedbackContext.Provider value={value}>{children}</FeedbackContext.Provider>
       <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-[360px] max-w-[calc(100vw-2rem)] flex-col gap-2">
         {items.map((item) => (
-          <div key={item.id} className={`pointer-events-auto rounded-md border p-3 shadow-editorial ${toneClasses(item.type)}`}>
+          <div key={item.id} className={`pointer-events-auto animate-fade-up rounded-md border border-l-[3px] p-3 shadow-elevated backdrop-blur-xl ${toneClasses(item.type)}`}>
             <div className="flex items-start justify-between gap-3">
               <p className="text-sm font-medium">{item.message}</p>
               <button
                 type="button"
-                className="shrink-0 rounded-md border border-current/25 px-2 py-0.5 text-xs opacity-80 transition-opacity hover:opacity-100"
+                className="shrink-0 rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground opacity-80 transition-opacity hover:opacity-100 hover:text-foreground"
                 onClick={() => removeItem(item.id)}
               >
                 x

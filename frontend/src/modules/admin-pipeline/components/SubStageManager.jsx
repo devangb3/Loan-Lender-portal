@@ -1,28 +1,53 @@
 import PropTypes from "prop-types";
 import { Alert, Button, MenuItem, Stack, TextField, Typography } from "@/components/ui/mui";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createSubstage, deleteSubstage, updateSubstage } from "../api";
-import { STAGE_ORDER } from "../utils";
+import { STAGE_ORDER, stageTitle } from "../utils";
 import { Card } from "@/components/ui/card";
+import { ChevronDown, ChevronRight } from "lucide-react";
+
+function buildDraft(substage) {
+  return {
+    name: substage.name,
+    main_stage: substage.main_stage,
+    order_index: String(substage.order_index ?? 0),
+    is_active: String(Boolean(substage.is_active)),
+  };
+}
 
 export function SubStageManager({ substages, onChanged }) {
   const [name, setName] = useState("");
   const [mainStage, setMainStage] = useState(STAGE_ORDER[0]);
   const [draftById, setDraftById] = useState({});
+  const [expandedByStage, setExpandedByStage] = useState(() => (
+    Object.fromEntries(STAGE_ORDER.map((stage, index) => [stage, index === 0]))
+  ));
   const [savingId, setSavingId] = useState(null);
   const [rowError, setRowError] = useState(null);
 
   useEffect(() => {
     const next = {};
     for (const substage of substages) {
-      next[substage.id] = {
-        name: substage.name,
-        main_stage: substage.main_stage,
-        order_index: String(substage.order_index ?? 0),
-        is_active: String(Boolean(substage.is_active)),
-      };
+      next[substage.id] = buildDraft(substage);
     }
     setDraftById(next);
+  }, [substages]);
+
+  const groupedSubstages = useMemo(() => {
+    const grouped = Object.fromEntries(STAGE_ORDER.map((stage) => [stage, []]));
+    for (const substage of substages) {
+      if (grouped[substage.main_stage]) {
+        grouped[substage.main_stage].push(substage);
+      }
+    }
+    for (const stage of STAGE_ORDER) {
+      grouped[stage].sort((left, right) => {
+        const orderDiff = (left.order_index ?? 0) - (right.order_index ?? 0);
+        if (orderDiff !== 0) return orderDiff;
+        return String(left.name || "").localeCompare(String(right.name || ""));
+      });
+    }
+    return grouped;
   }, [substages]);
 
   const handleCreate = async () => {
@@ -97,6 +122,17 @@ export function SubStageManager({ substages, onChanged }) {
     }
   };
 
+  const toggleStage = (stage) => {
+    setExpandedByStage((prev) => ({ ...prev, [stage]: !prev[stage] }));
+  };
+
+  const updateDraft = (substage, field, value) => {
+    setDraftById((prev) => {
+      const current = prev[substage.id] || buildDraft(substage);
+      return { ...prev, [substage.id]: { ...current, [field]: value } };
+    });
+  };
+
   return (
     <Card className="p-5">
       <Typography variant="h5" gutterBottom>Sub-Stage Manager</Typography>
@@ -105,122 +141,108 @@ export function SubStageManager({ substages, onChanged }) {
         <TextField label="Sub-stage name" value={name} onChange={(event) => setName(event.target.value)} size="small" />
         <TextField select size="small" label="Main stage" value={mainStage} onChange={(event) => setMainStage(event.target.value)}>
           {STAGE_ORDER.map((stage) => (
-            <MenuItem key={stage} value={stage}>{stage}</MenuItem>
+            <MenuItem key={stage} value={stage}>{stageTitle(stage)}</MenuItem>
           ))}
         </TextField>
         <Button variant="contained" onClick={() => void handleCreate()}>Add Sub-stage</Button>
       </Stack>
-      <Stack spacing={1}>
-        {substages.map((substage) => (
-          <Stack
-            key={substage.id}
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            className="rounded-md border border-border/60 bg-muted/20 p-2"
-          >
-            <div className="flex flex-1 flex-wrap items-center gap-2">
-              <TextField
-                size="small"
-                label="Name"
-                value={draftById[substage.id]?.name ?? substage.name}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setDraftById((prev) => {
-                    const current = prev[substage.id] || {
-                      name: substage.name,
-                      main_stage: substage.main_stage,
-                      order_index: String(substage.order_index ?? 0),
-                      is_active: String(Boolean(substage.is_active)),
-                    };
-                    return { ...prev, [substage.id]: { ...current, name: value } };
-                  });
-                }}
-                disabled={savingId === substage.id}
-              />
-              <TextField
-                select
-                size="small"
-                label="Main stage"
-                value={draftById[substage.id]?.main_stage ?? substage.main_stage}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setDraftById((prev) => {
-                    const current = prev[substage.id] || {
-                      name: substage.name,
-                      main_stage: substage.main_stage,
-                      order_index: String(substage.order_index ?? 0),
-                      is_active: String(Boolean(substage.is_active)),
-                    };
-                    return { ...prev, [substage.id]: { ...current, main_stage: value } };
-                  });
-                }}
-                disabled={savingId === substage.id}
+      <Stack spacing={1.5}>
+        {STAGE_ORDER.map((stage) => {
+          const stageSubstages = groupedSubstages[stage] || [];
+          const expanded = Boolean(expandedByStage[stage]);
+          return (
+            <div key={stage} className="rounded-md border border-border/60 bg-muted/20">
+              <button
+                type="button"
+                className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left"
+                onClick={() => toggleStage(stage)}
               >
-                {STAGE_ORDER.map((stage) => (
-                  <MenuItem key={stage} value={stage}>{stage}</MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                size="small"
-                type="number"
-                label="Order"
-                value={draftById[substage.id]?.order_index ?? String(substage.order_index)}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setDraftById((prev) => {
-                    const current = prev[substage.id] || {
-                      name: substage.name,
-                      main_stage: substage.main_stage,
-                      order_index: String(substage.order_index ?? 0),
-                      is_active: String(Boolean(substage.is_active)),
-                    };
-                    return { ...prev, [substage.id]: { ...current, order_index: value } };
-                  });
-                }}
-                disabled={savingId === substage.id}
-                className="w-28"
-              />
-              <TextField
-                select
-                size="small"
-                label="Status"
-                value={draftById[substage.id]?.is_active ?? String(Boolean(substage.is_active))}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setDraftById((prev) => {
-                    const current = prev[substage.id] || {
-                      name: substage.name,
-                      main_stage: substage.main_stage,
-                      order_index: String(substage.order_index ?? 0),
-                      is_active: String(Boolean(substage.is_active)),
-                    };
-                    return { ...prev, [substage.id]: { ...current, is_active: value } };
-                  });
-                }}
-                disabled={savingId === substage.id}
-                className="w-32"
-              >
-                <MenuItem value="true">Active</MenuItem>
-                <MenuItem value="false">Inactive</MenuItem>
-              </TextField>
-            </div>
+                <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-foreground">
+                  {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                  {stageTitle(stage)}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {stageSubstages.length} sub-stage{stageSubstages.length === 1 ? "" : "s"}
+                </span>
+              </button>
 
-            <div className="flex items-center gap-2">
-              <Button
-                size="small"
-                variant="outlined"
-                disabled={savingId === substage.id || !isRowDirty(substage)}
-                onClick={() => void handleSave(substage)}
-              >
-                {savingId === substage.id ? "Saving…" : "Save"}
-              </Button>
-              <Button size="small" color="error" onClick={() => void handleDelete(substage.id)} disabled={savingId === substage.id}>
-                Delete
-              </Button>
+              {expanded ? (
+                stageSubstages.length > 0 ? (
+                  <Stack spacing={1} className="border-t border-border/60 p-2">
+                    {stageSubstages.map((substage) => (
+                      <Stack
+                        key={substage.id}
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        className="rounded-md border border-border/60 bg-muted/30 p-2"
+                      >
+                        <div className="flex flex-1 flex-wrap items-center gap-2">
+                          <TextField
+                            size="small"
+                            label="Name"
+                            value={draftById[substage.id]?.name ?? substage.name}
+                            onChange={(event) => updateDraft(substage, "name", event.target.value)}
+                            disabled={savingId === substage.id}
+                          />
+                          <TextField
+                            select
+                            size="small"
+                            label="Main stage"
+                            value={draftById[substage.id]?.main_stage ?? substage.main_stage}
+                            onChange={(event) => updateDraft(substage, "main_stage", event.target.value)}
+                            disabled={savingId === substage.id}
+                          >
+                            {STAGE_ORDER.map((stageValue) => (
+                              <MenuItem key={stageValue} value={stageValue}>{stageTitle(stageValue)}</MenuItem>
+                            ))}
+                          </TextField>
+                          <TextField
+                            size="small"
+                            type="number"
+                            label="Order"
+                            value={draftById[substage.id]?.order_index ?? String(substage.order_index)}
+                            onChange={(event) => updateDraft(substage, "order_index", event.target.value)}
+                            disabled={savingId === substage.id}
+                            className="w-28"
+                          />
+                          <TextField
+                            select
+                            size="small"
+                            label="Status"
+                            value={draftById[substage.id]?.is_active ?? String(Boolean(substage.is_active))}
+                            onChange={(event) => updateDraft(substage, "is_active", event.target.value)}
+                            disabled={savingId === substage.id}
+                            className="w-32"
+                          >
+                            <MenuItem value="true">Active</MenuItem>
+                            <MenuItem value="false">Inactive</MenuItem>
+                          </TextField>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            disabled={savingId === substage.id || !isRowDirty(substage)}
+                            onClick={() => void handleSave(substage)}
+                          >
+                            {savingId === substage.id ? "Saving…" : "Save"}
+                          </Button>
+                          <Button size="small" color="error" onClick={() => void handleDelete(substage.id)} disabled={savingId === substage.id}>
+                            Delete
+                          </Button>
+                        </div>
+                      </Stack>
+                    ))}
+                  </Stack>
+                ) : (
+                  <p className="border-t border-border/60 px-3 py-2 text-xs text-muted-foreground">No sub-stages yet.</p>
+                )
+              ) : null}
             </div>
-          </Stack>
-        ))}
+          );
+        })}
       </Stack>
     </Card>
   );

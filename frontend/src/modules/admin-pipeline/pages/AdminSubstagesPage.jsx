@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { listSubstages } from "../api";
 import { PageHeader } from "@/shared/ui/PageHeader";
 import { APP_ROUTES } from "@/shared/constants";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 export function AdminSubstagesPage() {
   const [substages, setSubstages] = useState([]);
+  const navigate = useNavigate();
 
   const refreshSubstages = async () => {
     try {
@@ -16,6 +17,14 @@ export function AdminSubstagesPage() {
     } catch {
       // Error feedback is handled globally by the API client interceptor.
     }
+  };
+
+  const goBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate(APP_ROUTES.ADMIN_PIPELINE);
   };
 
   useEffect(() => {
@@ -28,6 +37,10 @@ export function AdminSubstagesPage() {
         title="Sub-Stages"
         actions={
           <Stack direction="row" spacing={1}>
+            <Button variant="outlined" size="small" className="gap-1.5" onClick={goBack}>
+              <ArrowLeft size={14} />
+              Back
+            </Button>
             <Link to={APP_ROUTES.ADMIN_PIPELINE}>
               <Button variant="outlined" size="small" className="gap-1.5">
                 <ArrowLeft size={14} />

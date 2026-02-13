@@ -10,9 +10,9 @@ export function ExportButtons() {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {EXPORTS.map((entity) => (
-        <Card key={entity} className="flex flex-col items-center gap-3 p-5 text-center hover:shadow-card-hover">
-          <div className="rounded-md bg-muted p-2.5">
-            <Download size={22} className="text-muted-foreground" />
+        <Card key={entity} className="flex flex-col items-center gap-3 p-5 text-center">
+          <div className="rounded-lg bg-primary/10 p-2.5">
+            <Download size={22} className="text-primary" />
           </div>
           <Typography variant="h6" className="capitalize">{entity}</Typography>
           <Button

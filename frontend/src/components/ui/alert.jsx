@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils";
 const Alert = React.forwardRef(({ className, variant = "default", ...props }, ref) => {
   const tone =
     variant === "destructive"
-      ? "border-destructive/50 text-destructive bg-destructive/5"
-      : "border-border text-foreground bg-card";
+      ? "border-l-destructive border-destructive/30 text-destructive bg-destructive/10"
+      : "border-l-primary border-border text-foreground bg-card/80";
 
-  return <div ref={ref} role="alert" className={cn("relative w-full rounded-md border p-4 text-sm", tone, className)} {...props} />;
+  return <div ref={ref} role="alert" className={cn("relative w-full rounded-md border border-l-[3px] p-4 text-sm backdrop-blur-sm", tone, className)} {...props} />;
 });
 Alert.displayName = "Alert";
 
