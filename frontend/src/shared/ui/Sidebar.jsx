@@ -47,13 +47,13 @@ export function Sidebar({ collapsed, onToggle }) {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-30 flex flex-col bg-sidebar text-sidebar-foreground shadow-sidebar transition-all duration-300",
+        "fixed inset-y-0 left-0 z-30 flex flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground transition-all duration-300",
         collapsed ? "w-16" : "w-56"
       )}
     >
       {/* Logo */}
       <div className="flex h-16 items-center justify-center border-b border-sidebar-border px-4">
-        <span className="font-display text-2xl tracking-poster text-sidebar-accent-foreground">
+        <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text font-display text-2xl font-bold text-transparent">
           {collapsed ? "L" : "LRP"}
         </span>
       </div>
@@ -70,9 +70,9 @@ export function Sidebar({ collapsed, onToggle }) {
                   end={link.end}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+                      "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-all",
                       isActive
-                        ? "border-l-2 border-accent bg-sidebar-accent text-sidebar-accent-foreground"
+                        ? "border-l-2 border-primary bg-primary/10 text-sidebar-accent-foreground"
                         : "border-l-2 border-transparent text-sidebar-muted-foreground hover:bg-sidebar-muted hover:text-sidebar-foreground"
                     )
                   }
@@ -94,7 +94,12 @@ export function Sidebar({ collapsed, onToggle }) {
               <p className="truncate text-xs font-semibold font-body normal-case tracking-normal text-sidebar-foreground">{user.full_name}</p>
             )}
             <p className="truncate text-xs font-body normal-case tracking-normal text-sidebar-muted-foreground">{user.email}</p>
-            <span className="inline-block rounded-full bg-sidebar-accent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sidebar-accent-foreground">
+            <span className={cn(
+              "inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+              user.role === USER_ROLES.ADMIN
+                ? "bg-secondary/15 text-secondary border border-secondary/25"
+                : "bg-primary/15 text-primary border border-primary/25"
+            )}>
               {user.role}
             </span>
           </div>

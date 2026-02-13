@@ -49,7 +49,7 @@ export function AppShell() {
       {/* Mobile overlay */}
       {mobileOpen && (
         <>
-          <div className="fixed inset-0 z-20 bg-black/40 lg:hidden" onClick={() => setMobileOpen(false)} />
+          <div className="fixed inset-0 z-20 bg-black/60 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)} />
           <div className="fixed inset-y-0 left-0 z-30 lg:hidden">
             <Sidebar collapsed={false} onToggle={() => setMobileOpen(false)} />
           </div>

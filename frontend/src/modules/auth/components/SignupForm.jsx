@@ -37,7 +37,7 @@ export function SignupForm() {
     <Card className="p-8">
       <Stack component="form" spacing={3} onSubmit={handleSubmit}>
         <div>
-          <h2 className="font-display text-3xl tracking-poster">Create Account</h2>
+          <h2 className="font-display text-3xl font-bold tracking-tight">Create account</h2>
           <Typography variant="body2" className="mt-1">Fill in your details to register as a partner.</Typography>
         </div>
 

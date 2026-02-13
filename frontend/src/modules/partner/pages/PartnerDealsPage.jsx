@@ -44,7 +44,7 @@ export function PartnerDealsPage() {
         <select
           value={stageFilter}
           onChange={(e) => setStageFilter(e.target.value)}
-          className="h-9 rounded-md border border-border bg-card px-3 text-sm font-body normal-case tracking-normal"
+          className="h-9 rounded-md border border-border bg-muted/50 px-3 text-sm font-body normal-case tracking-normal text-foreground transition-colors focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/50"
         >
           <option value="">All Stages</option>
           {stages.map((s) => (

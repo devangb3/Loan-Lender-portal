@@ -175,7 +175,7 @@ export function SubStageManager({ substages, onChanged }) {
                         direction="row"
                         justifyContent="space-between"
                         alignItems="center"
-                        className="rounded-md border border-border/60 bg-background/80 p-2"
+                        className="rounded-md border border-border/60 bg-muted/30 p-2"
                       >
                         <div className="flex flex-1 flex-wrap items-center gap-2">
                           <TextField

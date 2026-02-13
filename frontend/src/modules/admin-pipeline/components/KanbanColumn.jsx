@@ -13,9 +13,9 @@ export function KanbanColumn({ stage, title, deals }) {
     <div
       ref={setNodeRef}
       className={cn(
-        "editorial-shell flex min-h-[calc(100vh-12rem)] min-w-0 flex-col rounded-lg border-t-[3px] p-2.5 transition-all",
+        "glass-card flex min-h-[calc(100vh-12rem)] min-w-0 flex-col rounded-lg border-t-[3px] p-2.5 transition-all",
         stageColor(stage),
-        isOver && "ring-2 ring-primary/40 ring-offset-2",
+        isOver && "ring-2 ring-primary/40 shadow-glow-sm",
       )}
     >
       <div className="mb-2 flex items-center gap-1.5">

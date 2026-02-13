@@ -71,7 +71,7 @@ export function AdminDealsPage() {
             placeholder="Search by address, lender, or partner…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full rounded-md border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/30"
+            className="w-full rounded-md border border-border bg-muted/50 py-2 pl-9 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/40 focus:ring-1 focus:ring-primary/50"
           />
         </div>
       </div>

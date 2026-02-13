@@ -34,7 +34,7 @@ export function CommissionsTable({ commissions, onChanged }) {
           {commissions.map((commission) => (
             <TableRow key={commission.id}>
               <TableCell>{commission.deal_property_address ?? commission.deal_id}</TableCell>
-              <TableCell>{toCurrency(commission.amount)}</TableCell>
+              <TableCell><span className="font-semibold text-secondary">{toCurrency(commission.amount)}</span></TableCell>
               <TableCell>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Select

@@ -302,7 +302,7 @@ export function IconButton({ children, className, color = "default", size = "med
 export function Paper({ children, className, sx, style, variant, elevation, ...props }) {
   return (
     <Card
-      className={cn("rounded-lg", variant === "outlined" && "border-2", className)}
+      className={cn("rounded-lg", variant === "outlined" && "border-2 border-border", className)}
       style={mergeStyles(sxToStyle(sx), style)}
       {...props}
     >
@@ -385,7 +385,7 @@ export function ListItem({ children, className, divider, ...props }) {
   return (
     <li
       className={cn(
-        "rounded-md border border-border/60 bg-card/70 p-3",
+        "rounded-md border border-white/[0.06] bg-card/60 p-3 backdrop-blur-sm",
         divider && "rounded-none border-x-0 border-t-0",
         className,
       )}

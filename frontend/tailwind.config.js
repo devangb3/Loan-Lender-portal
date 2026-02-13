@@ -5,8 +5,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ["Bebas Neue", "Arial", "sans-serif"],
-        body: ["Source Serif 4", "Georgia", "serif"],
+        display: ["DM Sans", "system-ui", "sans-serif"],
+        body: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -63,10 +63,17 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        editorial: "0 12px 30px -16px hsl(var(--foreground) / 0.45)",
-        "card-hover": "0 16px 40px -12px hsl(var(--foreground) / 0.18)",
-        "drag-lift": "0 20px 50px -10px hsl(var(--foreground) / 0.30)",
-        sidebar: "4px 0 24px -6px hsl(var(--foreground) / 0.12)",
+        elevated:
+          "0 1px 2px hsl(0 0% 0% / 0.4), 0 4px 16px -2px hsl(0 0% 0% / 0.3)",
+        glass:
+          "inset 0 1px 0 0 hsl(0 0% 100% / 0.04), 0 1px 2px hsl(0 0% 0% / 0.3)",
+        "glow-sm": "0 0 12px -2px hsl(174 72% 46% / 0.3)",
+        "glow-lg": "0 0 24px -4px hsl(174 72% 46% / 0.4)",
+        "card-hover":
+          "0 0 0 1px hsl(174 72% 46% / 0.12), 0 8px 32px -8px hsl(0 0% 0% / 0.4)",
+        "drag-lift":
+          "0 20px 50px -10px hsl(0 0% 0% / 0.5), 0 0 0 1px hsl(174 72% 46% / 0.2)",
+        sidebar: "1px 0 0 0 hsl(var(--sidebar-border))",
       },
       letterSpacing: {
         poster: "0.08em",
@@ -84,11 +91,21 @@ export default {
           "0%": { transform: "scale(0.96)", opacity: "0" },
           "100%": { transform: "scale(1)", opacity: "1" },
         },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { opacity: "0.4" },
+          "50%": { opacity: "1" },
+        },
       },
       animation: {
         "slide-in-left": "slide-in-left 0.25s ease-out",
         "fade-up": "fade-up 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
+        shimmer: "shimmer 2s ease-in-out infinite",
+        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
       },
     },
   },

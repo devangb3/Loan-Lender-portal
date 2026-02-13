@@ -53,7 +53,7 @@ function Field({ label, value }) {
 }
 
 const selectClass =
-  "w-full rounded-md border border-border/80 bg-background px-2.5 py-1.5 text-xs text-foreground outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30";
+  "w-full rounded-md border border-border bg-muted/50 px-2.5 py-1.5 text-xs text-foreground outline-none transition-colors focus:border-primary/40 focus:ring-1 focus:ring-primary/50";
 
 export function AdminDealDetailPage() {
   const { dealId } = useParams();
@@ -300,7 +300,7 @@ export function AdminDealDetailPage() {
                   Accept this deal to proceed, or decline with a reason. The partner will be notified by email.
                 </p>
                 <textarea
-                  className="w-full rounded-md border border-border/80 bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary/30"
+                  className="w-full rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-colors focus:border-primary/40 focus:ring-1 focus:ring-primary/50"
                   rows={3}
                   placeholder="Reason (required for decline)…"
                   value={declineReason}
@@ -431,7 +431,7 @@ export function AdminDealDetailPage() {
               <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Timeline</h4>
               <div className="space-y-1.5">
                 {events.map((event) => (
-                  <div key={event.id} className="flex items-baseline justify-between gap-2 text-xs">
+                  <div key={event.id} className="flex items-baseline justify-between gap-2 border-l-2 border-primary/20 py-1 pl-3 text-xs">
                     <span className="font-medium text-foreground">{eventLabel(event)}</span>
                     <span className="shrink-0 text-muted-foreground">{formatDateTime(event.created_at)}</span>
                   </div>

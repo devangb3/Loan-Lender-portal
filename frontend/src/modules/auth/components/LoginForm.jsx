@@ -61,7 +61,7 @@ export function LoginForm() {
     <Card className="p-8">
       <Stack component="form" spacing={3} onSubmit={handleSubmit}>
         <div>
-          <h2 className="font-display text-3xl tracking-poster">Welcome Back</h2>
+          <h2 className="font-display text-3xl font-bold tracking-tight">Welcome back</h2>
           <Typography variant="body2" className="mt-1">Use your role account credentials to continue.</Typography>
         </div>
 

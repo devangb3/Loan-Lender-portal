@@ -116,7 +116,7 @@ export function PartnerDealDetailPage() {
             {filteredEvents.length > 0 ? (
               <div className="mt-3 space-y-2">
                 {filteredEvents.map((event) => (
-                  <div key={event.id} className="flex items-start justify-between gap-3 text-xs">
+                  <div key={event.id} className="flex items-start justify-between gap-3 border-l-2 border-primary/20 py-1 pl-3 text-xs">
                     <div className="min-w-0">
                       <span className="font-medium text-foreground">{eventLabel(event)}</span>
                       {event.reason ? (

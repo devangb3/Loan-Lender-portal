@@ -14,7 +14,7 @@ export function PartnerDashboardPage() {
   return (
     <Stack spacing={4} className="page-enter">
       <PageHeader
-        title="Partner Dashboard"
+        title="Dashboard"
         actions={
           <Button onClick={() => void refresh()} variant="contained">Refresh Data</Button>
         }
@@ -33,12 +33,12 @@ export function PartnerDashboardPage() {
       {commissionSummary ? (
         <Card className="p-5">
           <Typography variant="h5">Commission Goal Progress</Typography>
-          <Typography variant="body2" className="mb-2 mt-1">
-            Goal: {currency(commissionSummary.commission_goal)} &bull; Paid: {currency(commissionSummary.paid)}
+          <Typography variant="body2" className="mb-2 mt-1 text-muted-foreground">
+            Goal: <span className="font-semibold text-secondary">{currency(commissionSummary.commission_goal)}</span> &bull; Paid: <span className="font-semibold text-secondary">{currency(commissionSummary.paid)}</span>
           </Typography>
           <LinearProgress variant="determinate" value={Math.min(commissionSummary.progress_pct, 100)} />
-          <Typography variant="body2" className="mt-2">
-            Pending: {currency(commissionSummary.pending)} &bull; Earned: {currency(commissionSummary.earned)} &bull; Paid: {currency(commissionSummary.paid)}
+          <Typography variant="body2" className="mt-2 text-muted-foreground">
+            Pending: <span className="font-semibold text-secondary">{currency(commissionSummary.pending)}</span> &bull; Earned: <span className="font-semibold text-secondary">{currency(commissionSummary.earned)}</span> &bull; Paid: <span className="font-semibold text-secondary">{currency(commissionSummary.paid)}</span>
           </Typography>
         </Card>
       ) : null}
